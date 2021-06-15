@@ -1,0 +1,88 @@
+---
+title: "ECT Report"
+author: "yosiro.com"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+```{r}
+# Load Packages
+library(tidyverse)
+library(rio)
+library(RODBC)
+library(knitr)
+library(DBI)
+library(RColorBrewer)
+library(plyr)
+
+# Set Working Directory
+setwd("C:/Users/ASUS/Desktop")
+
+
+# Connect to Database
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/Cloud Data/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
+
+# Load Tables
+tbl_mhs_data <- sqlFetch(dta, "mhs_data_T") %>% as_tibble()
+tbl_mhs_kelas <- sqlFetch(dta, "mhs_kelas_T") %>% as_tibble()
+tbl_dosen <- sqlFetch(dta, "dosen") %>% as_tibble()
+tbl_jurusan <- sqlFetch(dta, "jurusan") %>% as_tibble()
+tbl_pengawas <- sqlFetch(dta, "pengawas") %>% as_tibble()
+tbl_prodi <- sqlFetch(dta, "prodi") %>% as_tibble()
+tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+
+tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
+tbl_rumus_toeic_reading <- sqlFetch(dta, "rumus_toeic_reading") %>% as_tibble()
+
+tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
+tbl_rumus_toeic_reading$ID <- as.numeric(tbl_rumus_toeic_reading$ID)
+tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
+```
+
+```{r}
+#ECT Mahasiswa Akhir 2021
+tabel <- tbl_mhs_score_toeic %>% 
+        select(ISO = mhs_daftar_toeic_ID, ID_mhs = mhs_data_ID, ID_ect = ID, l1:g2, skor = total, hadir)
+tabel <- merge(tabel, tbl_mhs_data, by.x = "ID_mhs", by.y = "ID", all.x = T )
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nim, mhs_kelas_ID, jenis_kelamin = sex, nama, tempat_lahir, tanggal_lahir) 
+tabel <- merge(tabel, tbl_mhs_kelas, by.x = "mhs_kelas_ID", by.y = "ID", all.x = T) 
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nama, nim, jenis_kelamin, prodi_ID, semester, kelas, tempat_lahir, tanggal_lahir)
+tabel <- merge(tabel, tbl_prodi, by.x = "prodi_ID", by.y = "ID") 
+tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi = singkatan, semester, kelas, program_studi = prodi, tempat_lahir, tanggal_lahir) 
+tabel <- merge(tabel, tbl_mhs_daftar_toeic, by.x = "ISO", by.y = "ID")
+tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi, semester, kelas, program_studi, tempat_lahir, tanggal_lahir, tanggal, keterangan_1, ruangan)
+
+
+
+
+
+```
+
+```{r}
+tanggal_awal <- as.Date("2021-04-01")
+tanggal_akhir <- as.Date("2021-04-30")
+
+
+cetak <- tabel %>% filter(!is.na(skor), skor > 0, tanggal >= tanggal_awal, tanggal <= tanggal_akhir)
+
+persiapan_dokumen_tes <- cetak %>% select(ISO, tanggal, Prodi, semester, kelas)  %>% count()
+
+peminjaman_alat <- cetak %>% mutate(Prod = paste(Prodi, semester, kelas)) %>% select(tanggal, Prod, ruangan) %>% count()
+
+export(peminjaman_alat, file = "peminjaman_alat.xlsx")
+export(persiapan_dokumen_tes, file = "persiapan_dokumen_tes.xlsx")
+
+
+```
+

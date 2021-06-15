@@ -1,0 +1,324 @@
+---
+title: "ECT Report"
+author: "yosiro.com"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+```{r}
+# Load Packages
+library(tidyverse)
+library(rio)
+library(RODBC)
+library(knitr)
+library(DBI)
+library(RColorBrewer)
+library(plyr)
+
+# Set Working Directory
+setwd("C:/Users/ASUS/Desktop")
+
+
+# Connect to Database
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/Cloud Data/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
+
+# Load Tables
+tbl_mhs_data <- sqlFetch(dta, "mhs_data_T") %>% as_tibble()
+tbl_mhs_kelas <- sqlFetch(dta, "mhs_kelas_T") %>% as_tibble()
+tbl_dosen <- sqlFetch(dta, "dosen") %>% as_tibble()
+tbl_jurusan <- sqlFetch(dta, "jurusan") %>% as_tibble()
+tbl_pengawas <- sqlFetch(dta, "pengawas") %>% as_tibble()
+tbl_prodi <- sqlFetch(dta, "prodi") %>% as_tibble()
+tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+
+tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
+tbl_rumus_toeic_reading <- sqlFetch(dta, "rumus_toeic_reading") %>% as_tibble()
+
+tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
+tbl_rumus_toeic_reading$ID <- as.numeric(tbl_rumus_toeic_reading$ID)
+tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
+```
+
+```{r}
+#ECT Mahasiswa Akhir 2021
+tabel <- tbl_mhs_score_toeic %>% 
+        select(ISO = mhs_daftar_toeic_ID, ID_mhs = mhs_data_ID, ID_ect = ID, l1:g2, skor = total, hadir)
+tabel <- merge(tabel, tbl_mhs_data, by.x = "ID_mhs", by.y = "ID", all.x = T )
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nim, mhs_kelas_ID, jenis_kelamin = sex, nama, tempat_lahir, tanggal_lahir) 
+tabel <- merge(tabel, tbl_mhs_kelas, by.x = "mhs_kelas_ID", by.y = "ID", all.x = T) 
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nama, nim, jenis_kelamin, prodi_ID, semester, kelas, tempat_lahir, tanggal_lahir)
+tabel <- merge(tabel, tbl_prodi, by.x = "prodi_ID", by.y = "ID") 
+tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi = singkatan, semester, kelas, program_studi = prodi, tempat_lahir, tanggal_lahir) 
+tabel <- merge(tabel, tbl_mhs_daftar_toeic, by.x = "ISO", by.y = "ID")
+tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi, semester, kelas, program_studi, tempat_lahir, tanggal_lahir, tanggal, keterangan_1, ruangan)
+
+tabel1 <- tabel %>% filter(ISO >= 154) 
+tabel2 <- tabel1 %>% filter(!is.na(jenis_kelamin), !is.na(skor), skor != 0)
+jumlah_peserta <- tabel2 %>% dplyr::summarize(jumlah = n()) %>% pull()
+rata_rata_global <- tabel2 %>% dplyr::summarize(rata = mean(skor)) %>% round(2) %>% pull()
+nilai_tertinggi <- tabel2 %>% dplyr::summarize(maks = max(skor)) %>% pull()
+jumlah_kelas <- tabel2 %>% mutate(kelas_prodi = paste(Prodi, kelas))
+jumlah_kelas <- jumlah_kelas %>% select(kelas_prodi) %>% group_by(kelas_prodi) %>% dplyr::summarize(unik = unique(kelas_prodi)) %>% pull()
+jumlah_kelas1 <- length(jumlah_kelas)
+
+```
+
+```{r}
+# Cek Apakah ada Jenis Kelamin yang belum diisi
+
+#tabel1 %>% filter(skor > 0 & is.na(jenis_kelamin))
+
+# Cek Apakah ada nilai L1 yang belum diisi
+
+#tabel1 %>% filter(is.na(l1) & !is.na(g1))
+
+# Cek apakah ada yang belum mengisi tempat tanggal lahir
+
+#tabel2 %>% filter((is.na(tempat_lahir) | is.na(tanggal_lahir)) & skor > 0 )
+
+# Cek salah tulis jenis kelamin
+tabel2 %>%  filter(jenis_kelamin != "Laki-laki", jenis_kelamin != "Perempuan")
+```
+
+
+# ECT Semester Akhir 2021
+
+**Jumlah Peserta : `r jumlah_peserta`**
+
+**Rata-rata : `r rata_rata_global`**
+
+**Nilai Tertinggi : `r nilai_tertinggi`**
+
+**Jumlah Kelas : `r jumlah_kelas1`**
+
+## Tabel kelas yang sudah mengikuti tes
+
+```{r}
+
+tabel3 <- tabel1
+tabel3 <- tabel3 %>% select(Prodi, kelas, nama) 
+tabel3 <- tabel3 %>% group_by(Prodi) %>% dplyr::summarize(Kelas = str_c(sort(unique(kelas)), collapse = ", "), Jumlah = n())
+tabel4 <- left_join(tbl_prodi, tabel3, by = c("singkatan" = "Prodi"), suffix = c(".x", "y"))
+tabel4 <- tabel4 %>% filter(!is.na(diploma)) %>% select(Prodi = singkatan, Kelas, Jumlah) %>% replace_na(list(Kelas = "", Jumlah = ""))
+
+kable(tabel4)
+        
+```
+
+
+```{r}
+tabel6 <- tabel2
+tabel6 <- tabel6 %>% select(ISO, Prodi, kelas, nama) %>% group_by(ISO, Prodi, kelas) %>% dplyr::summarize(Jumlah = n())
+kable(tabel6)
+```
+
+
+
+
+
+## BOXPLOT sebaran nilai ECT
+
+```{r}
+
+tabel2 %>% ggplot(aes(x = skor)) +
+        geom_boxplot(alpha = 0.7) +
+        labs(x = "", 
+             y = "",
+             title = "Sebaran Nilai ECT Mahasiswa Semester Akhir Tahun 2021",
+             subtitle = "Global Data") +
+        scale_fill_brewer(palette = "RdPu") +
+        theme(legend.position ="none", axis.ticks.y = element_blank(),
+        axis.text.y = element_blank()) 
+```
+
+## BOXPLOT sebaran nilai ECT berdasarkan jenis kelamin
+
+```{r}
+tabel2 %>% ggplot(aes(y = jenis_kelamin, x = skor, fill = jenis_kelamin)) +
+        geom_boxplot(alpha = 0.7) +
+        labs(x = "Skor", 
+             y = "",
+             title = "Sebaran Nilai ECT Mahasiswa Semester Akhir Tahun 2021",
+             subtitle = "Berdasarkan Jenis Kelamin") + 
+        stat_summary(fun.x = mean, geom = "point", shape = 20, size = 3, color = "red", fill = "red") +
+        scale_fill_brewer(palette = "Set1") +
+        theme(legend.position ="none")
+
+
+        
+```
+
+## BOXPLOT sebaran nilai ECT berdasarkan Prodi
+
+```{r}
+tabel2 %>% ggplot(aes(y = Prodi, x = skor)) +
+        geom_boxplot(alpha = 0.7, fill = "violet") +
+        labs(x = "Skor", 
+             y = "",
+             title = "Sebaran Nilai ECT Mahasiswa Semester Akhir Tahun 2021",
+             subtitle = "Per Prodi") + 
+        stat_summary(fun.x = mean, geom = "point", shape = 20, size = 3, color = "white", fill = "white") +
+        scale_fill_brewer(palette = "Set1") +
+        theme(legend.position ="none")
+```
+
+## BOXPLOT sebaran nilai ECT berdasarkan Prodi dan Jenis Kelamin
+
+```{r}
+tabel2 %>% ggplot(aes(y = Prodi, x = skor, fill = jenis_kelamin)) +
+        geom_boxplot(alpha = 0.7) +
+        labs(x = "Skor", 
+             y = "",
+             title = "Sebaran Nilai ECT Mahasiswa Semester Akhir Tahun 2021",
+             subtitle = "Per Prodi Per Jenis Kelamin") + 
+        stat_summary(fun.x = mean, geom = "point", shape = 20, size = 3, color = "white", fill = "white") +
+        scale_fill_brewer(palette = "Set1") +
+        theme(legend.position ="none") 
+```
+
+```{r}
+rata_rata <- tabel2 %>% 
+  group_by(Prodi) %>% 
+  dplyr::summarize(Rerata = round(mean(skor), 0)) %>% 
+  select(Prodi, Rerata) %>% 
+  arrange(desc(Rerata)) 
+
+rata_rata$Ranking <- sprintf("%02d", seq(1,len=nrow(rata_rata)))
+rata_rata <- rata_rata %>% mutate(nam = paste(Ranking, Prodi))
+
+palette <- brewer.pal(5,"BrBG")[-(2:4)]
+global_mean <- round(mean(tabel2$skor), 2)
+x_start <- global_mean + 50
+y_start <- 3.5
+x_end <- global_mean
+y_end <- 4.5
+
+ggplot(rata_rata, aes(x = Rerata, y = nam, color = Rerata)) +
+        geom_point(size = 9) +
+        geom_segment(aes(xend = 10, yend = nam), size = 2) +
+        geom_text(aes(label = Rerata), color = "white", size = 3) +
+        scale_x_continuous("", expand = c(0,0), limits = c(10, 400), position = "top") +
+        scale_y_discrete(limits=rev) +
+        scale_color_gradientn(colors = palette) +
+        labs(title = "Rata-rata skor ECT semester akhir 2021 per Prodi") +
+        theme_classic() +
+        theme(axis.line.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.title = element_blank(),
+              legend.position = "none") +
+        geom_vline(xintercept = global_mean, color = "grey40", linetype = 3) +
+        annotate("text", x = x_start, y = y_start, label = paste("The global\naverage",as.character(global_mean)), vjust = 1, size = 3, color = "grey40") +
+        annotate("curve", x = x_start, y = y_start, xend = x_end, yend = y_end, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40")
+```
+
+```{r}
+max_prodi <- tabel2 %>% 
+  group_by(Prodi) %>% 
+  dplyr::summarize(max_score = max(skor)) %>% 
+  select(Prodi, max_score) %>% 
+  arrange(desc(max_score))
+
+max_prodi$Ranking <- sprintf("%02d", seq(1,len=nrow(max_prodi)))
+max_prodi <- max_prodi %>% mutate(nam = paste(Ranking, Prodi))
+
+palette <- brewer.pal(5,"Accent")[-(2:4)]
+global_mean <- round(mean(tabel2$skor), 2)
+x_start <- global_mean + 30
+y_start <- 3.8
+x_end <- global_mean
+y_end <- 4.5
+
+ggplot(max_prodi, aes(x = max_score, y = nam, color = max_score)) +
+        geom_point(size = 9) +
+        geom_segment(aes(xend = 10, yend = nam), size = 2) +
+        geom_text(aes(label = max_score), color = "white", size = 3) +
+        scale_x_continuous("", expand = c(0,0), limits = c(10, 990), position = "top") +
+        scale_y_discrete(limits=rev) +
+        scale_color_gradientn(colors = palette) +
+        labs(title = "Skor tertinggi ECT semester akhir 2021 per Prodi") +
+        theme_classic() +
+        theme(axis.line.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.title = element_blank(),
+              legend.position = "none") +
+        geom_vline(xintercept = global_mean, color = "grey40", linetype = 3) +
+        annotate("text", x = x_start, y = y_start, label = paste("The global\naverage",as.character(global_mean)), vjust = 1, size = 3, color = "grey40") +
+        annotate("curve", x = x_start, y = y_start, xend = x_end, yend = y_end, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40")
+```
+
+```{r}
+skor_ranking <- tabel2 %>% select(Prodi, nama, skor) %>% mutate(gab = paste(nama, "[", Prodi,"]")) %>% arrange(desc(skor)) 
+skor_ranking <- skor_ranking[1:10, ]
+skor_ranking$ranking <- sprintf("%02d", seq(1L,len=nrow(skor_ranking)))
+skor_ranking$nam <- paste("No.",as.character(as_factor(skor_ranking$ranking)),"-",skor_ranking$gab)
+
+palette <- brewer.pal(5,"RdYlBu")[-(2:4)]
+global_mean <- round(mean(tabel2$skor), 2)
+x_start <- global_mean + 30
+y_start <- 3.9
+x_end <- global_mean
+y_end <- 4.5
+
+ggplot(skor_ranking, aes(x = skor, y = nam, color = skor)) +
+        geom_point(size = 9) +
+        geom_segment(aes(xend = 10, yend = nam), size = 2) +
+        geom_text(aes(label = skor), color = "white", size = 3) +
+        scale_x_continuous("", expand = c(0,0), limits = c(10, 990), position = "top") +
+        scale_y_discrete(limits=rev) +
+        scale_color_gradientn(colors = palette) +
+        labs(title = "Top 10 skor ECT") +
+        theme_classic() +
+        theme(axis.line.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.title = element_blank(),
+              legend.position = "none") +
+        geom_vline(xintercept = global_mean, color = "grey40", linetype = 3) +
+        annotate("text", x = x_start, y = y_start, label = paste("The global\naverage",as.character(global_mean)), vjust = 1, size = 3, color = "grey40") +
+        annotate("curve", x = x_start, y = y_start, xend = x_end, yend = y_end, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40")
+```
+
+```{r}
+diatas_400 <- tabel2 %>% 
+  mutate(diatas400 = ifelse(skor >=400, 1, 0))
+diatas_400 <- diatas_400 %>% ddply(.(Prodi), summarize, prop = mean(diatas400), jml = length(diatas400))
+diatas_400$prop <- round(diatas_400$prop*100, 2)
+diatas_400$persen <- paste(diatas_400$prop, "%")
+diatas_400 <- diatas_400 %>% arrange(desc(prop))
+diatas_400$Ranking <- sprintf("%02d", seq(1,len=nrow(diatas_400)))
+diatas_400 <- diatas_400 %>% mutate(nam = paste(Ranking, Prodi))
+
+palette <- brewer.pal(9,"Blues")[-(2:4)]
+global_mean_diatas_400 <- diatas_400 %>% summarize(rata = round(mean(prop),2)) %>% pull()
+x_start <- global_mean_diatas_400 + 1
+y_start <- 4.8
+x_end <- global_mean_diatas_400
+y_end <- 5.5
+
+ggplot(diatas_400, aes(x = prop, y = nam, color = prop)) +
+        geom_point(size = 15) +
+        geom_segment(aes(xend = 0, yend = nam), size = 2) +
+        geom_text(aes(label = persen), color = "white", size = 3) +
+        scale_x_continuous("", expand = c(0,0), limits = c(-2, 30), position = "top") +
+        scale_y_discrete(limits=rev) +
+        #scale_color_gradientn(colors = palette) +
+        labs(title = "Persentase yang mendapatkan skor di atas 400") +
+        theme_classic() +
+        theme(axis.line.y = element_blank(),
+              axis.ticks.y = element_blank(),
+              axis.title = element_blank(),
+              legend.position = "none") +
+        geom_vline(xintercept = global_mean_diatas_400, color = "grey40", linetype = 3) +
+        annotate("text", x = x_start, y = y_start, label = paste("The global\naverage",as.character(global_mean_diatas_400), "%"), vjust = 1, size = 3, color = "grey40") +
+        annotate("curve", x = x_start, y = y_start, xend = x_end, yend = y_end, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40")
+```

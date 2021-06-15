@@ -1,0 +1,78 @@
+---
+title: "Perbandingan Score ECT"
+author: "yosiro.com"
+date: "9/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+```
+
+
+```{r}
+# Load Packages
+library(tidyverse)
+library(rio)
+library(RODBC)
+
+# Set Working Directory
+setwd("C:/Users/ASUS/Desktop")
+
+
+# Connect to Database
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/Cloud Data/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database V107.accdb")
+
+# Load Tables
+tbl_mhs_data <- sqlFetch(dta, "mhs_data_T") %>% as_tibble()
+tbl_mhs_kelas <- sqlFetch(dta, "mhs_kelas_T") %>% as_tibble()
+tbl_dosen <- sqlFetch(dta, "dosen") %>% as_tibble()
+tbl_jurusan <- sqlFetch(dta, "jurusan") %>% as_tibble()
+tbl_pengawas <- sqlFetch(dta, "pengawas") %>% as_tibble()
+tbl_prodi <- sqlFetch(dta, "prodi") %>% as_tibble()
+tbl_mhs_daftar_toefl <- sqlFetch(dta, "mhs_daftar_toefl_T") %>% as_tibble()
+tbl_mhs_score_toefl <- sqlFetch(dta, "mhs_score_toefl_T") %>% as_tibble()
+tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+tbl_rumus_toefl_grammar <- sqlFetch(dta, "rumus_toefl_grammar") %>% as_tibble()
+tbl_rumus_toefl_listening <- sqlFetch(dta, "rumus_toefl_listening") %>% as_tibble()
+tbl_rumus_toefl_reading <- sqlFetch(dta, "rumus_toefl_reading") %>% as_tibble()
+tbl_rumus_toeic_grammar <- sqlFetch(dta, "rumus_toeic_reading") %>% as_tibble()
+tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
+tbl_rumus_toeic_grammar$ID <- as.numeric(tbl_rumus_toeic_grammar$ID)
+tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
+```
+
+```{r}
+tabel <- tbl_mhs_score_toeic %>% 
+        select(ISO = mhs_daftar_toeic_ID, ID_mhs = mhs_data_ID, ID_ect = ID, l1:g2, skor = total, hadir)
+tabel <- merge(tabel, tbl_mhs_data, by.x = "ID_mhs", by.y = "ID", all.x = T )
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nim, mhs_kelas_ID, jenis_kelamin = sex, nama) 
+tabel <- merge(tabel, tbl_mhs_kelas, by.x = "mhs_kelas_ID", by.y = "ID", all.x = T) 
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nama, nim, jenis_kelamin, prodi_ID, semester, kelas)
+tabel <- merge(tabel, tbl_prodi, by.x = "prodi_ID", by.y = "ID") 
+tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi = singkatan, semester, kelas, program_studi = prodi) 
+
+tabel1 <- tabel %>% filter(ISO < 154) 
+tabel2 <- tabel %>% filter(ISO >= 154) 
+
+
+```
+
+```{r}
+tabel3 <- left_join(tabel2, tabel1, by = "nim", suffix = c(".2", ".1")) 
+tabel3 <- tabel3 %>% select(Prodi = Prodi.2, Semester = semester.2, Kelas = kelas.2, Nama = nama.2, NIM = nim, `Skor Awal` = skor.1, `Skor Akhir` = skor.2) %>% arrange(Prodi, Kelas, Nama) 
+```
+
+```{r}
+jumlah_peserta <- tabel3 %>% 
+        filter(!is.na(`Skor Akhir`)) %>% 
+        group_by(Prodi, Semester, Kelas) %>% 
+        summarize(Jumlah = n())
+
+total <- sum(jumlah_peserta$Jumlah) 
+```
+
+Total peserta yang mengikuti : `r total`
