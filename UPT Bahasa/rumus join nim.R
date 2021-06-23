@@ -1,7 +1,4 @@
-library(tidyverse)
-library(rio)
-library(RODBC)
-
+pacman::p_load(pacman, tidyverse, rio, RODBC)
 
 setwd("C:/Users/ASUS/Desktop")
 
@@ -30,14 +27,14 @@ tabel_join2 <- tabel_join1 %>% group_by(nim) %>% slice(1) %>% arrange(nama.x)
 
 
 # Export 1 by 1
-export(tabel_join2, file = "dkb.xlsx")
+export(tabel_join2, file = "2.xlsx")
 
 # Join all file
 
-name_file <- as.list(sprintf("%s.xlsx", seq(1:5)))
+name_file <- as.list(sprintf("%s.xlsx", seq(1:2)))
 
 import_file <- lapply(name_file, import)
-export(import_file, "combine.xlsx")
+export(import_file, "mesinD3.xlsx")
 
 # book <- loadWorkbook("tabel_join.xlsx")
 # createSheet(book, kelas)

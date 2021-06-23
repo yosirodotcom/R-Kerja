@@ -1,9 +1,10 @@
-pacman::p_load(pacman, dplyr, magrittr, vars, ecm, MuMIn, PerformanceAnalytics,dynlm, dyn, rio)
+pacman::p_load(pacman, dplyr, magrittr, vars, ecm, MuMIn, PerformanceAnalytics,dynlm, dyn, rio, olsrr, broom)
 rm(list = ls())
 
 # Preparing data
 
-df <- import(file="clipboard")
+df <- import(file="eurusd.xlsx")
+names(df)
 df %<>% mutate(lag1 = lag(Y, differences = 1), 
                differ = lag1 - Y,
                bull = if_else(differ > 0, 1, 0),
@@ -16,9 +17,26 @@ df %<>% mutate(lag1 = lag(Y, differences = 1),
                bull7 = lag(bull6, 1),
                bull8 = lag(bull7, 1)) 
 
+df2 <- df %>% mutate(y1 = lag(Y,1),
+              y2 = lag(Y,2),
+              y3 = lag(Y,3),
+              y4 = lag(Y,4),
+              y5 = lag(Y,5),
+              y6 = lag(Y,6),
+              y7 = lag(Y,7)) %>% na.omit()
+
+model <- lm(Y ~ y1+y2+y3+y4+y5+y6+y7, df2)
+      summary(model)
+
+ols_step_both_p(model)
+
 df2 <- df[-c(1:10),]
+model_fit_combine <- regsubsets(Y ~ y1+y2+y3+y4+y5+y6+y7, data = df2, nbest = 1, method = "seqrep")
+df_fit_combine <- with(summary(model_fit_combine), data.frame(rsq, adjr2, cp, bic, rss, outmat)) %>% print()
 
-
+options(na.action ="na.fail")
+dredge(global.model = model)
+options(na.action ="na.omit")
 
 #skenario 1
 
