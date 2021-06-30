@@ -1,4 +1,4 @@
-pacman::p_load(pacman, rio, tidyverse, caret, skimr, magrittr)
+pacman::p_load(pacman, rio, tidyverse, caret, skimr, magrittr, randomForest, caTools, e1071)
 rm(list = ls())
 theme_set(theme_bw())
 
@@ -40,7 +40,7 @@ cols <- names(eurgbp)[6:11]
 eurgbp[cols] <- lapply(eurgbp[cols], factor)
 eurgbp <- na.omit(eurgbp)
 
-df <- as.data.frame(cbind(eurusd.Trend = eurusd$eurusd.Trend,
+df <- as.data.frame(cbind(eurusd.Trend = eurusd$eurusd.Trend),
             eurusd.TrendL1 = eurusd$eurusd.TrendL1,
             eurusd.TrendL2 = eurusd$eurusd.TrendL2,
             eurusd.TrendL3 = eurusd$eurusd.TrendL3,
@@ -57,8 +57,13 @@ df <- as.data.frame(cbind(eurusd.Trend = eurusd$eurusd.Trend,
             eurgbp.TrendL4 = eurgbp$eurgbp.TrendL4,
             eurgbp.TrendL5 = eurgbp$eurgbp.TrendL5))
 
+df[df == 1] <- "Bear"
+df[df == 2] <- "Bull"
+
 cols <- names(df)
 df[cols] <- lapply(df[cols], factor)
+
+str(df)
 
 
 # Inspect data
@@ -68,7 +73,7 @@ sample_n(df, 3)
 
 
 # Split the data into training and test set
-set.seed(788838)
+set.seed(123)
 training.samples <- createDataPartition(df$eurusd.Trend, p = 0.8, list = FALSE)
 train.data  <- df[training.samples, ]
 test.data <- df[-training.samples, ]
@@ -77,14 +82,30 @@ test.data <- df[-training.samples, ]
 
 # Logistic
 
-model <- glm(eurusd.Trend ~ eurgbp.TrendL4 + eurusd.TrendL1 + eurusd.TrendL3, train.data, family = binomial)
+model <- glm(eurusd.Trend ~ eurusd.TrendL1 + eurusd.TrendL3, train.data, family = binomial)
 summary(model)
 
 # Make Predictions
 prob <- model %>% predict(test.data, type = "response")
 
 
-predicted.classes <- ifelse(prob > 0.1, 1, 2)
+predicted.classes <- ifelse(prob > 0.5, "Bull", "Bear")
 
 # Model Accuracy
 mean(predicted.classes == test.data$eurusd.Trend)
+
+x <- predict(model, df[1:10,], type = "response")
+y <- ifelse(x > 0.5, "Bull", "Bear")
+y == df$eurusd.Trend[1:10]
+
+
+rf <- randomForest(eurusd.Trend ~ 
+                           eurusd.TrendL1+
+                           eurusd.TrendL3,
+                   ntree = 2000, 
+                   mtry = 5,
+                   data = train.data, 
+                   proximity = T)
+rf
+trControl <- trainControl(method = "cv", number = 10, search = "grid")
+trControl

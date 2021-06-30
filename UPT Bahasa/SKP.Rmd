@@ -1,0 +1,204 @@
+---
+title: "SKP"
+author: "yosiro.com"
+date: "30/6/2021"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.align = "left", echo = FALSE)
+```
+
+
+```{r, echo=FALSE, include = FALSE}
+# Load Packages
+pacman::p_load(pacman, 
+               tidyverse,
+               rio,
+               RODBC,
+               DBI,
+               RColorBrewer,
+               plyr,
+               lubridate,
+               magrittr)
+
+# Set Working Directory
+setwd("D:/Cloud Data/Dropbox/R Programming/R-Kerja")
+
+
+# Connect to Database
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/Cloud Data/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
+
+# Load Tables
+tbl_mhs_data <- sqlFetch(dta, "mhs_data_T") %>% as_tibble()
+tbl_mhs_kelas <- sqlFetch(dta, "mhs_kelas_T") %>% as_tibble()
+tbl_dosen <- sqlFetch(dta, "dosen") %>% as_tibble()
+tbl_jurusan <- sqlFetch(dta, "jurusan") %>% as_tibble()
+tbl_pengawas <- sqlFetch(dta, "pengawas") %>% as_tibble()
+tbl_prodi <- sqlFetch(dta, "prodi") %>% as_tibble()
+tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+
+tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
+tbl_rumus_toeic_reading <- sqlFetch(dta, "rumus_toeic_reading") %>% as_tibble()
+
+tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
+tbl_rumus_toeic_reading$ID <- as.numeric(tbl_rumus_toeic_reading$ID)
+tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
+
+tabel <- tbl_mhs_score_toeic %>% 
+        select(ISO = mhs_daftar_toeic_ID, ID_mhs = mhs_data_ID, ID_ect = ID, l1:g2, skor = total, hadir)
+
+# Join tabel dengan tbl_mhs_data
+tabel <- merge(tabel, tbl_mhs_data, by.x = "ID_mhs", by.y = "ID", all.x = T )
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nim, mhs_kelas_ID, jenis_kelamin = sex, nama, tempat_lahir, tanggal_lahir) 
+
+# Join tabel dengan tbl_mhs_kelas
+tabel <- merge(tabel, tbl_mhs_kelas, by.x = "mhs_kelas_ID", by.y = "ID", all.x = T) 
+tabel <- tabel %>% 
+        select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nama, nim, jenis_kelamin, prodi_ID, semester, kelas, tempat_lahir, tanggal_lahir)
+
+# Join tabel dengan tbl_prodi
+tabel <- merge(tabel, tbl_prodi, by.x = "prodi_ID", by.y = "ID") 
+tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi = singkatan, semester, kelas, program_studi = prodi, tempat_lahir, tanggal_lahir) 
+
+# Join tabel dengan tbl_mhs_dadtar_toeic
+tabel <- merge(tabel, tbl_mhs_daftar_toeic, by.x = "ISO", by.y = "ID")
+tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi, semester, kelas, program_studi, tempat_lahir, tanggal_lahir, tanggal, keterangan_1, ruangan, waktu)
+
+```
+
+
+
+```{r, echo=FALSE, include = FALSE}
+df <- tabel %>% filter(keterangan_1 == "ECT Mahasiswa Semester Akhir 2021")
+df$tanggal %<>% as.character()
+df <- df %>% mutate(Kelas = paste(Prodi, " ", semester, kelas, sep = "")) 
+df <- df %>% group_by(ISO, tanggal, program_studi, Kelas, waktu) %>% dplyr::summarize(
+                                        Jumlah_Peserta = dplyr::n(),
+                                        Jumlah_Hadir = sum(hadir)) 
+df <- df %>% mutate(Abstain = Jumlah_Peserta - Jumlah_Hadir)
+df %<>% arrange(desc(tanggal)) 
+```
+
+```{r, include = FALSE}
+format(as.Date(df$tanggal[1]), "%d %B %Y")
+```
+
+
+
+# Menyiapkan bahan dan alat untuk analisis material/kalibrasi sesuai prosedur yang berlaku
+**Tanggal : `r format(as.Date(df$tanggal[10]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[10]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[10]` buku soal. <br />
+- `r df$Jumlah_Peserta[10]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[9]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[9]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[9]` buku soal. <br />
+- `r df$Jumlah_Peserta[9]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[8]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[8]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[8]` buku soal. <br />
+- `r df$Jumlah_Peserta[8]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[7]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[7]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[7]` buku soal. <br />
+- `r df$Jumlah_Peserta[7]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[6]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[6]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[6]` buku soal. <br />
+- `r df$Jumlah_Peserta[6]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[5]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[5]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[5]` buku soal. <br />
+- `r df$Jumlah_Peserta[5]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[4]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[4]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[4]` buku soal. <br />
+- `r df$Jumlah_Peserta[4]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[3]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[3]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[3]` buku soal. <br />
+- `r df$Jumlah_Peserta[3]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[2]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[2]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[2]` buku soal. <br />
+- `r df$Jumlah_Peserta[2]` lembar jawab <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[1]), "%d %B %Y")`** <br />
+Mempersiapkan bahan-bahan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[1]`.<br />
+- 1 buah daftar hadir <br />
+- `r df$Jumlah_Peserta[1]` buku soal. <br />
+- `r df$Jumlah_Peserta[1]` lembar jawab <br /><br />
+
+# Melakukan pengawasan penggunaan peralatan laboratorium dan fasilitas yang menjadi tanggung jawabnya
+
+**Tanggal : `r format(as.Date(df$tanggal[10]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[10]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[9]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[9]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[8]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[8]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[7]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[7]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[6]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[6]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[5]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[5]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[4]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[4]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[3]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[3]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[2]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[2]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />
+
+**Tanggal : `r format(as.Date(df$tanggal[1]), "%d %B %Y")`** <br />
+Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[1]`.<br />
+- 2 buah speaker <br />
+- 2 buah handphone <br /><br />

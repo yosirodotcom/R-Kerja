@@ -84,3 +84,120 @@ sum(bear_win$differ)
 
 total_win <- sum(bull_win$differ) + abs(sum(bear_win$differ))
 total_win
+
+
+
+
+
+
+
+
+
+
+
+
+
+################### with logit
+
+update.packages()
+pacman::p_load(pacman, rio, tidyverse, magrittr, AER, stargazer)
+
+
+eurusd <- import(file = "clipboard")
+df <- eurusd
+df %<>% mutate(pip = abs(Price - Open)*10000,
+               trend = (Price - Open)*10000,
+               nomor = 1:n(),
+               candle = ifelse(trend < 0, "Bear", "Bull")) %>% 
+        arrange(desc(nomor))
+df %<>% mutate(candleL1 = lag(candle,1), pipL1 = lag(pip, 1),
+               candleL2 = lag(candle,2), pipL2 = lag(pip, 2),
+               PriceL1 = lag(Price, 1),
+               OpenL1 = lag(Open, 1),
+               HighL1 = lag(High, 1),
+               LowL1 = lag(Low, 1),
+               PriceL2 = lag(Price, 2),
+               OpenL2 = lag(Open, 2),
+               HighL2 = lag(High, 2),
+               LowL2 = lag(Low, 2)) 
+df %<>% mutate(sinyal = ifelse(candleL2 == "Bear" & candleL1 == "Bull" & PriceL1 > HighL2, "Bull", 
+                               ifelse(candleL2 == "Bull" & candleL1 == "Bear" & PriceL1 < LowL2, "Bear","No signal")))
+
+df %<>% select(sinyal, candle, pip)
+
+profit.bull <- df %>% filter(sinyal == "Bull", candle == "Bull") %>% summarize(profit = sum(pip)) %>% pull()
+loss.bull <- df %>% filter(sinyal == "Bull", candle == "Bear") %>% summarize(loss = sum(pip)) %>% pull()
+profit.bear <- df %>% filter(sinyal == "Bear", candle == "Bear") %>% summarize(profit = sum(pip)) %>% pull()
+loss.bear <- df %>% filter(sinyal == "Bear", candle == "Bull") %>% summarize(loss = sum(pip)) %>% pull()
+
+profit.bull
+loss.bull
+profit.bear
+loss.bear
+
+total.profit <- profit.bull+profit.bear
+total.loss <- loss.bull+loss.bear
+
+df$X2 <- as_factor(df$X2)
+df$X3 <- as_factor(df$X3)
+df$X4 <- as_factor(df$X4)
+df$candle <- as_factor(df$candle)
+
+engulfing <- df %>% mutate(sinyal = ifelse())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+maxpip <- 30
+
+df.logit <- df[-c(1:4),]
+df.logit %<>% filter(pipL1 >=maxpip,
+                     pipL2 >=maxpip,
+                     pipL3 >=maxpip,
+                     pipL4 >=maxpip)
+
+logit.fit1 <- glm(candle ~ candleL1, df.logit, family = binomial(link = "logit"))
+logit.fit2 <- glm(candle ~ X2, df.logit, family = binomial(link = "logit"))
+logit.fit3 <- glm(candle ~ X3, df.logit, family = binomial(link = "logit"))
+logit.fit4 <- glm(candle ~ X4, df.logit, family = binomial(link = "logit"))
+summary(logit.fit1)
+summary(logit.fit2)
+summary(logit.fit3)
+summary(logit.fit4)
+
+
+profit <- df.logit %>% filter(X2 == "Bull Bull", candle == "Bear") %>% summarize(profit = abs(sum(pip))) %>% pull()
+jumlah.profit <- df.logit %>% filter(X2 == "Bull Bull", candle == "Bear") %>% summarize(jumlah = n()) %>% pull()
+loss <- df.logit %>% filter(X2 == "Bull Bull", candle == "Bull") %>% summarize(loss = abs(sum(pip))) %>% pull()
+jumlah.loss <- df.logit %>% filter(X2 == "Bull Bull", candle == "Bull") %>% summarize(jumlah = n()) %>% pull()
+
+win.ratio1 <- profit/(profit+loss) 
+win.ratio1
+
+win.ratio2 <- jumlah.profit/(jumlah.loss+jumlah.profit)
+win.ratio2
+jumlah.loss
+jumlah.profit
