@@ -211,7 +211,7 @@ Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas
 
 
 ```{r}
-ect <- df %>% select(ISO, `Tanggal Tes` = tanggal, Waktu = waktu, Kelas, Jumlah = Jumlah_Peserta, Hadir = Jumlah_Hadir, Abstain) %>% arrange(ISO)
+ect <- df %>% select(ISO, `Tanggal Tes` = tanggal, Waktu = waktu, Kelas, Jumlah = Jumlah_Peserta, Hadir = Jumlah_Hadir, Abstain) %>% arrange(`Tanggal Tes`)
 ect
 sum(ect$Hadir)
 ```
