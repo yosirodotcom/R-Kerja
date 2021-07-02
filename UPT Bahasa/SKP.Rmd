@@ -71,15 +71,21 @@ tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Pr
 
 ```
 
+```{r}
+table(tabel$keterangan_1)
+
+session <- "ECT Mahasiswa Semester Akhir 2021"
+```
 
 
 ```{r, echo=FALSE, include = FALSE}
-df <- tabel %>% filter(keterangan_1 == "ECT Mahasiswa Semester Akhir 2021")
+df <- tabel %>% filter(keterangan_1 == session)
 df$tanggal %<>% as.character()
 df <- df %>% mutate(Kelas = paste(Prodi, " ", semester, kelas, sep = "")) 
-df <- df %>% group_by(ISO, tanggal, program_studi, Kelas, waktu) %>% dplyr::summarize(
+df <- df %>% group_by(ISO, tanggal, program_studi, Prodi, Kelas, waktu) %>% dplyr::summarize(
                                         Jumlah_Peserta = dplyr::n(),
                                         Jumlah_Hadir = sum(hadir)) 
+df <- df %>% ungroup()
 df <- df %>% mutate(Abstain = Jumlah_Peserta - Jumlah_Hadir)
 df %<>% arrange(desc(tanggal)) 
 ```
@@ -202,3 +208,11 @@ Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas
 Mempersiapkan peralatan tes ECT untuk mahasiswa semester akhir Prodi `r df$Kelas[1]`.<br />
 - 2 buah speaker <br />
 - 2 buah handphone <br /><br />
+
+
+```{r}
+ect <- df %>% select(ISO, `Tanggal Tes` = tanggal, Waktu = waktu, Kelas, Jumlah = Jumlah_Peserta, Hadir = Jumlah_Hadir, Abstain) %>% arrange(ISO)
+ect
+sum(ect$Hadir)
+```
+
