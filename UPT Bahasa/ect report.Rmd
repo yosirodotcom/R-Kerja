@@ -13,13 +13,16 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 
 ```{r}
 # Load Packages
-library(tidyverse)
-library(rio)
-library(RODBC)
-library(knitr)
-library(DBI)
-library(RColorBrewer)
-library(plyr)
+pacman::p_load(pacman, 
+               tidyverse,
+               rio,
+               RODBC,
+               knitr,
+               DBI,
+               RColorBrewer,
+               plyr,
+               magrittr)
+
 
 # Set Working Directory
 setwd("C:/Users/ASUS/Desktop")
@@ -37,8 +40,8 @@ tbl_pengawas <- sqlFetch(dta, "pengawas") %>% as_tibble()
 tbl_prodi <- sqlFetch(dta, "prodi") %>% as_tibble()
 tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
 tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
-tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
-tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
+# tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
+# tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
 
 tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibble()
 tbl_rumus_toeic_reading <- sqlFetch(dta, "rumus_toeic_reading") %>% as_tibble()
@@ -49,22 +52,60 @@ tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
 ```
 
 ```{r}
-#ECT Mahasiswa Akhir 2021
+# Load Data
+# count(tbl_mhs_daftar_toeic$keterangan_1) # lihat keterangan
+keterangan <- "ECT Mahasiswa Semester Akhir 2021"
+  
 tabel <- tbl_mhs_score_toeic %>% 
         select(ISO = mhs_daftar_toeic_ID, ID_mhs = mhs_data_ID, ID_ect = ID, l1:g2, skor = total, hadir)
+
+# Combine tabel vs tbl_mhs_data
 tabel <- merge(tabel, tbl_mhs_data, by.x = "ID_mhs", by.y = "ID", all.x = T )
 tabel <- tabel %>% 
         select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nim, mhs_kelas_ID, jenis_kelamin = sex, nama, tempat_lahir, tanggal_lahir) 
+
+# Combine tabel vs tbl_mhs_kelas
 tabel <- merge(tabel, tbl_mhs_kelas, by.x = "mhs_kelas_ID", by.y = "ID", all.x = T) 
 tabel <- tabel %>% 
         select(ISO, ID_mhs, ID_ect, l1:g2, skor, hadir, nama, nim, jenis_kelamin, prodi_ID, semester, kelas, tempat_lahir, tanggal_lahir)
+
+# Combine tabel vs tbl_prodi
 tabel <- merge(tabel, tbl_prodi, by.x = "prodi_ID", by.y = "ID") 
 tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi = singkatan, semester, kelas, program_studi = prodi, tempat_lahir, tanggal_lahir) 
+
+# Combine tabel vs tbl_mhs_daftar_toeic
 tabel <- merge(tabel, tbl_mhs_daftar_toeic, by.x = "ISO", by.y = "ID")
 tabel <- tabel %>% select(ISO, nim, nama, jenis_kelamin, l1:g2, skor, hadir,  Prodi, semester, kelas, program_studi, tempat_lahir, tanggal_lahir, tanggal, keterangan_1, ruangan)
 
-tabel1 <- tabel %>% filter(ISO >= 154) 
-tabel2 <- tabel1 %>% filter(!is.na(jenis_kelamin), !is.na(skor), skor != 0)
+# Filter kegiatan
+tabel1 <- tabel %>% filter(keterangan_1 == keterangan)
+tabel2 <- tabel1 %>% filter(!is.na(skor))
+```
+
+
+```{r}
+# Cek apakah ada jenis kelamin yang belum terisi
+cek1 <- tabel2 %>% filter(is.na(jenis_kelamin), !is.na(skor))
+
+# Cek apakah ada kesalahan pengetikan jenis kelamin
+cek2 <- count(tabel2$jenis_kelamin)
+
+# Cek apakah ada skor yang belum terisi
+cek3 <- tabel2 %>% filter(skor == 0)
+
+# Cek apakah ada nilai listening yang 0
+cek4 <- tabel2 %>% filter(l1 == 0)
+
+# Cek apakah ada nilai reading yang 0
+cek5 <- tabel2 %>% filter(g1 == 0)
+
+# Cek apakah ada yang belum mengisi tempat tanggal lahir
+
+cek6 <- tabel2 %>% filter((is.na(tempat_lahir) | is.na(tanggal_lahir))) %>% select(ISO, nama, tempat_lahir, tanggal_lahir)
+```
+
+
+```{r}
 jumlah_peserta <- tabel2 %>% dplyr::summarize(jumlah = n()) %>% pull()
 rata_rata_global <- tabel2 %>% dplyr::summarize(rata = mean(skor)) %>% round(2) %>% pull()
 nilai_tertinggi <- tabel2 %>% dplyr::summarize(maks = max(skor)) %>% pull()
@@ -74,22 +115,6 @@ jumlah_kelas1 <- length(jumlah_kelas)
 
 ```
 
-```{r}
-# Cek Apakah ada Jenis Kelamin yang belum diisi
-
-#tabel1 %>% filter(skor > 0 & is.na(jenis_kelamin))
-
-# Cek Apakah ada nilai L1 yang belum diisi
-
-#tabel1 %>% filter(is.na(l1) & !is.na(g1))
-
-# Cek apakah ada yang belum mengisi tempat tanggal lahir
-
-#tabel2 %>% filter((is.na(tempat_lahir) | is.na(tanggal_lahir)) & skor > 0 )
-
-# Cek salah tulis jenis kelamin
-tabel2 %>%  filter(jenis_kelamin != "Laki-laki", jenis_kelamin != "Perempuan")
-```
 
 
 # ECT Semester Akhir 2021

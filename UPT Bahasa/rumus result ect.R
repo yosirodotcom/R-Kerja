@@ -1,8 +1,6 @@
-
 # Load Packages
-library(tidyverse)
-library(rio)
-library(RODBC)
+pacman::p_load(pacman, tidyverse, rio, RODBC)
+
 
 # Set Working Directory
 setwd("C:/Users/ASUS/Desktop")
@@ -30,7 +28,7 @@ tbl_rumus_toeic_listening <- sqlFetch(dta, "rumus_toeic_listening") %>% as_tibbl
 tbl_rumus_toeic_grammar$ID <- as.numeric(tbl_rumus_toeic_grammar$ID)
 tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
 
-glimpse(tbl_mhs_score_toeic)
+
 
 # Load Table Result
 b3 <- import("B3.xlsx") %>% as_tibble()
@@ -86,8 +84,8 @@ a <- tbl_mhs_score_toeic %>% dplyr::filter(ID >= min_b) %>% dplyr::select(id_pes
 
 # Join a and b table
 result <- left_join(a, b, by = "id_peserta", suffix = c(".a", ".b")) 
-result <- result %>% mutate(l1 = replace_na(l1, 0), r1 = replace_na(r1, 0))
-result <- result %>% mutate(centang = ifelse(l1 > 0, 1, 0)) 
+result <- result %>% mutate(l1 = ifelse(l1==0,1,l1), r1 = ifelse(r1==0,1,r1))
+result <- result %>% mutate(centang = ifelse(!is.na(l1), 1, 0)) 
 
 # Calculate score
 tbl_score <- merge(result, tbl_rumus_toeic_listening, by.x = "l1", by.y = "ID", all.x = T) 
@@ -95,9 +93,9 @@ tbl_score <- merge(tbl_score, tbl_rumus_toeic_grammar, by.x = "r1", by.y = "ID",
 tbl_score %<>% as_tibble() %>% arrange(id_peserta)
 tbl_score <- tbl_score %>% mutate(skor = listening+reading) 
 tbl_score$listening <- as.numeric(tbl_score$listening)
-tbl_score$listening <- as.numeric(tbl_score$reading)
-tbl_score$listening <- as.numeric(tbl_score$skor)
-tbl_score <- tbl_score %>% mutate(l1 = ifelse(l1 == 0, NA, l1), r1 = ifelse(r1 == 0, NA, r1))
+tbl_score$reading <- as.numeric(tbl_score$reading)
+tbl_score$skor <- as.numeric(tbl_score$skor)
+#tbl_score <- tbl_score %>% mutate(l1 = ifelse(l1 == 0, NA, l1), r1 = ifelse(r1 == 0, NA, r1))
 tbl_score <- tbl_score %>% dplyr::select(ID = id_peserta, l1, r1, l2 = listening, r2 = reading, skor, hadir = centang) 
 
 export(tbl_score, file = "tbl_score.xlsx")
