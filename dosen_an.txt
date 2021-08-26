@@ -1,0 +1,57 @@
+nama_dosen	nama_pangkat	nip	dosen_an
+Abdullah	Dr. Abdullah, S.E., M.M.	196309061998021001	0
+Ade M Yuardani	Ade M Yuardani, S.Sos., M.Si.	197403102009121001	1
+Agus Eko Tedjo Sasongko	Drs. Agus Eko Tedjo Sasongko, M.Si.	196612191992031003	0
+Andjani Tri Mawarni	Andjani Tri Mawarni, S.ST., M.Si.		0
+Anggita	Anggita, S.Pd., M.Pd.	198604262008012002	0
+Anistya Fitri Larasati	Anistya Fitri Larasati, S.E., M.Si.	199203252019032000	0
+Charlyna S. Purba	Charlyna S. Purba, S.H., M.H.	199203062019032023	1
+Debbie Yuari Siallagan	Debbie Yuari Siallagan, S.Sos., M.A.P.	199401012019032035	1
+Dedi Herdiansyah	Dr. Dedi Herdiansyah, S.E., M.Si.	197510092001121003	0
+Desvira Zain	Desvira Zain, S.E., M.M.	197312152001122001	0
+Didi Zulyanto	Drs. Didi Zulyanto, M.Si.	196404141998031002	1
+Didik M. Nur Halis	Dr. Didik M. Nur Halis, Lc., M.A.	197603232003121001	0
+Edy Sutrisno	Edy Sutrisno, S.E., M.AB.	197512082001121001	0
+Eka Mustika Sari	Eka Mustika Sari		0
+Endang Wahyuni	Endang Wahyuni, S.Sos., M.Si.	198206122014042001	1
+Era Perestroika	Era Perestroika, S.ST., M.AP.	199109162019032027	1
+Evi Sofiana	Evi Sofiana, S.E., M.M.	197609062001122002	0
+Firdaus	Firdaus, S.IP., M.Sos.		0
+Grace Kelly Hadiputri Sihombing	Grace Kelly Hadiputri Sihombing, S.H., M.H.	199011032019032014	1
+Haikal Bavadhal	Haikal Bavadhal, S.ST., M.AP.		0
+Haris Mirza Saputra	Haris Mirza Saputra, S.ST., M.Si.	198809102019031012	1
+Hasymi Rinaldi	Hasymi Rinaldi, S.Sos., M.PA.	198010202005011002	1
+Heriyanto	Heriyanto, S.Sos., M.Si.	198403162019031004	1
+Iga Yolanda	Iga Yolanda		0
+Ipung Wijaya	Ipung Wijaya		0
+Ismail Umar	Ismail Umar, S.E., M.M.	196805031999031003	0
+Januardi M Diah	Januardi M Diah, S.E., M.AB.	197501172001121002	0
+Kardison Lumban Batu	Dr. Kardison Lumban Batu, S.E., M.Sc.	197408032001121001	0
+Laila Nurfitrah Lubis	Laila Nurfitrah Lubis, S.AB., M.A.B.	199104132019032029	0
+Lilis Listiyawati	Dra. Lilis Listiyawati, M.Si.	196709211993032004	1
+Liliyana	Liliyana, S.E., M.M.	197803112005012001	0
+M. Awaluddin	M. Awaluddin, S.AP., M.Si.	199205112019031017	1
+Mahendra Jaya	Mahendra Jaya, S.E., M.M.	196205051996031001	0
+Marsela Diaz	Marsela Diaz, S.E., MSA., Ak.	198103162005012001	0
+Meizi Fahrizal	Meizi Fahrizal, S.E., M.Si.	196805191996031002	0
+Melti Oktavianda	Melti Oktavianda		0
+Muh. Toasin Asha	Ir. H. Muh. Toasin Asha, M.Si.	196112251990111001	0
+Nawang Aviani	Nawang Aviani, S.ST., M.AP.		0
+Novi Desanti	Novi Desanti, S.E., M.AB.	197511062001122001	0
+Nurmala	Dr. Ir. Hj. Nurmala, MM.	195608151988112001	0
+Ramli	Ramli, S.T., M.T.	196201261989031003	0
+Riska Wahyuni	Riska Wahyuni, S.S., M.Pd.	198303312008122003	0
+Rudi Efendi	Rudi Efendi		0
+Rudy Tandra	Rudy Tandra, S.T., M.Kom.	198509292019031010	1
+Samuel Dendy Krisandi	Samuel Dendy Krisandi, S.E., M.M.	198502062019031005	0
+Sri Syabanita Elida	Dr. Sri Syabanita Elida, S.E., M.M.	197608042001122001	0
+Sulaiman	Sulaiman, S.Sos., M.Si.	198707282019031012	1
+Sunanto	Sunanto		0
+Sunarsih	Sunarsih, S.E., M.M.	196703142000032001	0
+Syarifah Novieyana	Syarifah Novieyana, S.E., M.M.	197706102001122001	0
+Topan Prihantoro	Topan Prihantoro	196801201993031001	0
+Tri Wahyuarini	Tri Wahyuarini, S.E., M.Si.	197508042001122001	0
+Ul Qadri	Ul Qadri, S.AP., M.Si.	198607132015041002	1
+Utin Nina Hermina	Dr. Hj. Utin Nina Hermina, S.E., M.Si.	197109301996032001	1
+Widodo PS	Dr. Widodo PS, S.T., M.T.	197504242000031001	0
+Zaniar	Drs. Zaniar, M.T., M.Sc.		0

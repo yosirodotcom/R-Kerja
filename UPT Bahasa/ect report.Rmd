@@ -51,10 +51,12 @@ tbl_rumus_toeic_reading$ID <- as.numeric(tbl_rumus_toeic_reading$ID)
 tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
 ```
 
+
+
 ```{r}
 # Load Data
 # count(tbl_mhs_daftar_toeic$keterangan_1) # lihat keterangan
-keterangan <- "ECT Mahasiswa Semester Akhir 2021"
+keterangan <- "ECT Mahasiswa Semester Awal 2020"
   
 tabel <- tbl_mhs_score_toeic %>% 
         select(ISO = mhs_daftar_toeic_ID, ID_mhs = mhs_data_ID, ID_ect = ID, l1:g2, skor = total, hadir)
@@ -347,3 +349,13 @@ ggplot(diatas_400, aes(x = prop, y = nam, color = prop)) +
         annotate("text", x = x_start, y = y_start, label = paste("The global\naverage",as.character(global_mean_diatas_400), "%"), vjust = 1, size = 3, color = "grey40") +
         annotate("curve", x = x_start, y = y_start, xend = x_end, yend = y_end, arrow = arrow(length = unit(0.2, "cm"), type = "closed"), color = "grey40")
 ```
+
+
+# Laporan per prodi
+
+```{r}
+# Prod <- "AB"
+# print_tabel <- tabel2 %>% filter(Prodi == Prod) %>% select(nama, nim, jenis_kelamin, l1:skor, kelas) %>% arrange(kelas)
+# export(print_tabel, file = "AB.xlsx")
+```
+

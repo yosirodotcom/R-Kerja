@@ -1,0 +1,27 @@
+mata_kuliah	kode_mk	semester
+Administrasi kependudukan	ADN34415	IV
+Administrasi Perkantoran Pemerintah	ADN32415	II
+Agama Islam (D4 AN)	ADN32515	II
+Azas-Azas manajemen	ADN32815	II
+Bahasa Indonesia (D4 AN)	ADN36215	VI
+Database	ADN24115	IV
+English For Communication	ADN32615	II
+Etika Pemerintahan	ADN34515	IV
+Implementasi Kebijakan Publik	ADN34815	IV
+Kesekretariatan Daerah	ADN36415	VI
+KeyBoarding Skill (D4 AN)	ADN22115	II
+komunikasi organisasi	ADN36515	VI
+Manajemen Konflik	ADN36815	VI
+Manajemen Lingkungan	ADN34615	IV
+Mice Pemerintahan	ADN26115	VI
+Organisasi Dan manajemen publik	ADN34715	IV
+Pendidikan Pancasila (D4 AN)	ADN32915	II
+Penganggaran Pemerintah	ADN36615	VI
+Pengolah Data (D4 AN)	ADN22215	II
+Politik Dan kepartaian	ADN36315	VI
+Presentasi (D4 AN)	ADN22315	II
+Sistem Hukum Administrasi Negara	ADN32015	II
+Sistem Informasi Manajemen	ADN36715	VI
+Sistem Pemerintahan daerah	ADN34215	IV
+Sistem Pengadaan Barang/Jasa Pemerintah	ADN34315	IV
+Tata Naskah Dinas	ADN32715	II

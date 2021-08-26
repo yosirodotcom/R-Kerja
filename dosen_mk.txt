@@ -1,0 +1,131 @@
+nama_dosen	kode_mk	semester	kelas
+Abdullah	ADN34315	IV	A
+Abdullah	ADN34315	IV	B
+Ade M Yuardani	ADN36315	VI	B
+Ade M Yuardani	ADN36315	VI	C
+Ade M Yuardani	ADN36315	VI	D
+Ade M Yuardani	ADN36815	VI	A
+Ade M Yuardani	ADN36815	VI	E
+Agus Eko Tedjo Sasongko	ADN36815	VI	B
+Agus Eko Tedjo Sasongko	ADN36815	VI	D
+Andjani Tri Mawarni	ADN34415	IV	A
+Andjani Tri Mawarni	ADN34515	IV	D
+Charlyna S. Purba	ADN32015	II	A
+Charlyna S. Purba	ADN32015	II	B
+Charlyna S. Purba	ADN32015	II	C
+Charlyna S. Purba	ADN32015	II	D
+Charlyna S. Purba	ADN32015	II	E
+Debbie Yuari Siallagan	ADN32415	II	D
+Debbie Yuari Siallagan	ADN32415	II	E
+Debbie Yuari Siallagan	ADN36315	VI	A
+Debbie Yuari Siallagan	ADN36315	VI	E
+Dedi Herdiansyah	ADN34415	IV	B
+Dedi Herdiansyah	ADN34415	IV	C
+Desvira Zain	ADN32415	II	B
+Didi Zulyanto	ADN34715	IV	E
+Didik M. Nur Halis	ADN32515	II	A
+Didik M. Nur Halis	ADN32515	II	B
+Didik M. Nur Halis	ADN32515	II	C
+Didik M. Nur Halis	ADN32515	II	D
+Didik M. Nur Halis	ADN32515	II	E
+Edy Sutrisno	ADN32715	II	A
+Edy Sutrisno	ADN32715	II	B
+Edy Sutrisno	ADN32715	II	C
+Edy Sutrisno	ADN32715	II	D
+Edy Sutrisno	ADN32715	II	E
+Eka Mustika Sari	ADN22315	II	D
+Eka Mustika Sari	ADN34415	IV	D
+Eka Mustika Sari	ADN34415	IV	E
+Endang Wahyuni	ADN34215	IV	A
+Endang Wahyuni	ADN34215	IV	B
+Endang Wahyuni	ADN34215	IV	C
+Endang Wahyuni	ADN34215	IV	D
+Endang Wahyuni	ADN34215	IV	E
+Era Perestroika	ADN34715	IV	A
+Era Perestroika	ADN34715	IV	C
+Era Perestroika	ADN34715	IV	D
+Evi Sofiana	ADN22115	II	A
+Evi Sofiana	ADN22115	II	B
+Evi Sofiana	ADN22115	II	C
+Firdaus	ADN36515	VI	E
+Grace Kelly Hadiputri Sihombing	ADN32915	II	A
+Grace Kelly Hadiputri Sihombing	ADN32915	II	B
+Grace Kelly Hadiputri Sihombing	ADN32915	II	C
+Grace Kelly Hadiputri Sihombing	ADN32915	II	D
+Grace Kelly Hadiputri Sihombing	ADN32915	II	E
+Haikal Bavadhal	ADN34615	IV	E
+Haris Mirza Saputra	ADN34515	IV	A
+Haris Mirza Saputra	ADN34515	IV	B
+Haris Mirza Saputra	ADN34515	IV	C
+Haris Mirza Saputra	ADN34515	IV	E
+Haris Mirza Saputra	ADN34715	IV	B
+Hasymi Rinaldi	ADN36515	VI	A
+Hasymi Rinaldi	ADN36515	VI	B
+Hasymi Rinaldi	ADN36515	VI	C
+Hasymi Rinaldi	ADN36515	VI	D
+Heriyanto	ADN22315	II	A
+Heriyanto	ADN22315	II	B
+Heriyanto	ADN22315	II	C
+Heriyanto	ADN22315	II	E
+Heriyanto	ADN34615	IV	A
+Heriyanto	ADN34615	IV	C
+Iga Yolanda	ADN32615	II	D
+Iga Yolanda	ADN32615	II	E
+Ipung Wijaya	ADN36415	VI	D
+Ismail Umar	ADN32815	II	B
+Ismail Umar	ADN32815	II	C
+Januardi M Diah	ADN22115	II	D
+Januardi M Diah	ADN22115	II	E
+Januardi M Diah	ADN36715	VI	B
+Januardi M Diah	ADN36715	VI	D
+Kardison Lumban Batu	ADN36615	VI	C
+Kardison Lumban Batu	ADN36615	VI	E
+Lilis Listiyawati	ADN32615	II	A
+Lilis Listiyawati	ADN32615	II	B
+Lilis Listiyawati	ADN32615	II	C
+Liliyana	ADN22215	II	A
+Liliyana	ADN22215	II	C
+Liliyana	ADN22215	II	D
+M. Awaluddin	ADN34815	IV	A
+M. Awaluddin	ADN34815	IV	B
+M. Awaluddin	ADN34815	IV	C
+Mahendra Jaya	ADN36615	VI	B
+Mahendra Jaya	ADN36615	VI	D
+Marsela Diaz	ADN36615	VI	A
+Meizi Fahrizal	ADN34815	IV	D
+Meizi Fahrizal	ADN34815	IV	E
+Muh. Toasin Asha	ADN34615	IV	B
+Novi Desanti	ADN22215	II	B
+Novi Desanti	ADN22215	II	E
+Nurmala	ADN32815	II	A
+Ramli	ADN34315	IV	D
+Ramli	ADN34315	IV	E
+Riska Wahyuni	ADN36215	VI	A
+Riska Wahyuni	ADN36215	VI	B
+Riska Wahyuni	ADN36215	VI	C
+Riska Wahyuni	ADN36215	VI	D
+Riska Wahyuni	ADN36215	VI	E
+Rudi Efendi	ADN34315	IV	C
+Rudy Tandra	ADN24115	IV	B
+Rudy Tandra	ADN24115	IV	C
+Rudy Tandra	ADN24115	IV	E
+Rudy Tandra	ADN36715	VI	A
+Rudy Tandra	ADN36715	VI	E
+Sulaiman	ADN36415	VI	A
+Sulaiman	ADN36415	VI	B
+Sulaiman	ADN36415	VI	C
+Sulaiman	ADN36415	VI	E
+Sunanto	ADN34615	IV	D
+Sunarsih	ADN24115	IV	A
+Sunarsih	ADN24115	IV	D
+Syarifah Novieyana	ADN32415	II	A
+Syarifah Novieyana	ADN32415	II	C
+Tri Wahyuarini	ADN36715	VI	C
+Ul Qadri	ADN26115	VI	A
+Ul Qadri	ADN26115	VI	B
+Ul Qadri	ADN26115	VI	C
+Ul Qadri	ADN26115	VI	D
+Ul Qadri	ADN26115	VI	E
+Utin Nina Hermina	ADN32815	II	D
+Utin Nina Hermina	ADN32815	II	E
+Widodo PS	ADN36815	VI	C
