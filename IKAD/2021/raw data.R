@@ -22,12 +22,12 @@ list_mk <- tbl_mk$mata_kuliah
 
 for(i in list_mk){
         print(master1 %>% 
-                      select(nama_dosen, mata_kuliah, semester, kelas) %>% 
-                      filter(mata_kuliah == i) %>% 
+                      select(nama_pangkat, mata_kuliah, semester, kelas) %>% 
+                      filter(mata_kuliah == i, semester == "II") %>% 
                       arrange(kelas))
 }
 
-
+## Untuk melihat daftar mata kuliah per semester
 list_semester <- unique(tbl_mk$semester)
 x4 <- master1 %>% 
         select(mata_kuliah, semester) %>% 

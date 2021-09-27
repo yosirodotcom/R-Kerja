@@ -56,7 +56,7 @@ tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
 ```{r}
 # Load Data
 # count(tbl_mhs_daftar_toeic$keterangan_1) # lihat keterangan
-keterangan <- "ECT Mahasiswa Semester Awal 2020"
+keterangan <- "ECT Mahasiswa Semester Akhir 2021"
   
 tabel <- tbl_mhs_score_toeic %>% 
         select(ISO = mhs_daftar_toeic_ID, ID_mhs = mhs_data_ID, ID_ect = ID, l1:g2, skor = total, hadir)

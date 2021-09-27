@@ -28,7 +28,7 @@ tabel_join2 <- tabel_join1 %>% group_by(nim) %>% slice(1) %>% arrange(nama.x)
 
 
 # Export 1 by 1
-export(tabel_join2, file = "1.xlsx")
+export(tabel_join2, file = "BTP 7A.xlsx")
 
 # Join all file
 

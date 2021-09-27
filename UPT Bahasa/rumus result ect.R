@@ -31,52 +31,82 @@ tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
 
 
 # Load Table Result
-b3 <- import("B3.xlsx") %>% as_tibble()
-b4 <- import("B4.xlsx") %>% as_tibble()
-b5 <- import("B5.xlsx") %>% as_tibble()
-b6 <- import("B6.xlsx") %>% as_tibble()
-b7 <- import("B7.xlsx") %>% as_tibble()
-b8 <- import("B8.xlsx") %>% as_tibble()
-b9 <- import("B9.xlsx") %>% as_tibble()
-b10 <- import("B10.xlsx") %>% as_tibble()
+# Load Table Result
+
+tahun <- "2021"
+bulan <- "03"
+tanggal <- "26"
+
+for(i in 3:10){
+        assign(paste0("a",i,sep=""),
+               import(paste("B",i,"_",tahun,"_",bulan,"_",tanggal,"_Result.xlsx", sep = "")) %>%
+                       as_tibble())
+}
+
+# b3 <- import("B3.xlsx") %>% as_tibble()
+# b4 <- import("B4.xlsx") %>% as_tibble()
+# b5 <- import("B5.xlsx") %>% as_tibble()
+# b6 <- import("B6.xlsx") %>% as_tibble()
+# b7 <- import("B7.xlsx") %>% as_tibble()
+# b8 <- import("B8.xlsx") %>% as_tibble()
+# b9 <- import("B9.xlsx") %>% as_tibble()
+# b10 <- import("B10.xlsx") %>% as_tibble()
 
 
 # Simplify Table Resutl
-b3 <- b3 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b3$l1 <- as.numeric(b3$l1)
-b3$r1 <- as.numeric(b3$r1)
-b3$id_peserta <- as.numeric(b3$id_peserta)
-b4 <- b4 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b4$l1 <- as.numeric(b4$l1)
-b4$r1 <- as.numeric(b4$r1)
-b4$id_peserta <- as.numeric(b4$id_peserta)
-b5 <- b5 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b5$l1 <- as.numeric(b5$l1)
-b5$r1 <- as.numeric(b5$r1)
-b5$id_peserta <- as.numeric(b5$id_peserta)
-b6 <- b6 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b6$l1 <- as.numeric(b6$l1)
-b6$r1 <- as.numeric(b6$r1)
-b6$id_peserta <- as.numeric(b6$id_peserta)
-b7 <- b7 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b7$l1 <- as.numeric(b7$l1)
-b7$r1 <- as.numeric(b7$r1)
-b7$id_peserta <- as.numeric(b7$id_peserta)
-b8 <- b8 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b8$l1 <- as.numeric(b8$l1)
-b8$r1 <- as.numeric(b8$r1)
-b8$id_peserta <- as.numeric(b8$id_peserta)
-b9 <- b9 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b9$l1 <- as.numeric(b9$l1)
-b9$r1 <- as.numeric(b9$r1)
-b9$id_peserta <- as.numeric(b9$id_peserta)
-b10 <- b10 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
-b10$l1 <- as.numeric(b10$l1)
-b10$r1 <- as.numeric(b10$r1)
-b10$id_peserta <- as.numeric(b10$id_peserta)
+
+for(i in 3:10){
+        x <- paste0("a",i,sep="")
+        assign(x, dplyr::select(get(x), id_peserta = `No. Peserta`, 
+                                l1 = `Section 1`, 
+                                r1 = `Section 2`))
+        
+}
+
+for(i in 3:10){
+        x <- paste0("a",i,sep="")
+        assign(x, dplyr::mutate(get(x), id_peserta = as.numeric(id_peserta), 
+                                l1 = as.numeric(l1),
+                                r1 = as.numeric(r1)))
+        
+}
+
+
+# b3 <- b3 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b3$l1 <- as.numeric(b3$l1)
+# b3$r1 <- as.numeric(b3$r1)
+# b3$id_peserta <- as.numeric(b3$id_peserta)
+# b4 <- b4 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b4$l1 <- as.numeric(b4$l1)
+# b4$r1 <- as.numeric(b4$r1)
+# b4$id_peserta <- as.numeric(b4$id_peserta)
+# b5 <- b5 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b5$l1 <- as.numeric(b5$l1)
+# b5$r1 <- as.numeric(b5$r1)
+# b5$id_peserta <- as.numeric(b5$id_peserta)
+# b6 <- b6 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b6$l1 <- as.numeric(b6$l1)
+# b6$r1 <- as.numeric(b6$r1)
+# b6$id_peserta <- as.numeric(b6$id_peserta)
+# b7 <- b7 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b7$l1 <- as.numeric(b7$l1)
+# b7$r1 <- as.numeric(b7$r1)
+# b7$id_peserta <- as.numeric(b7$id_peserta)
+# b8 <- b8 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b8$l1 <- as.numeric(b8$l1)
+# b8$r1 <- as.numeric(b8$r1)
+# b8$id_peserta <- as.numeric(b8$id_peserta)
+# b9 <- b9 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b9$l1 <- as.numeric(b9$l1)
+# b9$r1 <- as.numeric(b9$r1)
+# b9$id_peserta <- as.numeric(b9$id_peserta)
+# b10 <- b10 %>% dplyr::select(id_peserta = `No. Peserta`, l1 = `Section 1`, r1 = `Section 2`) 
+# b10$l1 <- as.numeric(b10$l1)
+# b10$r1 <- as.numeric(b10$r1)
+# b10$id_peserta <- as.numeric(b10$id_peserta)
 
 # combine result table (a table)
-b <- bind_rows(b3, b4, b5, b6, b7, b8, b9, b10) %>% replace_na(list(l1 = 0, r1 = 0))
+b <- bind_rows(a3, a4, a5, a6, a7, a8, a9, a10) # %>% replace_na(list(l1 = 0, r1 = 0))
 min_b <- b %>% summarize(min(id_peserta)) %>% pull()
 
 # simplify score ect table (b table)
