@@ -1,0 +1,340 @@
+---
+title: "Data Cleaning ECT"
+output: html_document
+date: '2022-07-15'
+---
+
+```{r setup, include=FALSE}
+rm(list =ls())
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(pacman, dplyr, magrittr, rio, stringr, sjmisc, VIM)
+setwd("C:/Users/ASUS/Dropbox/R Programming/R-Kerja/UPT Bahasa/")
+```
+
+```{r}
+df <- import("qry_ECT_raw_data.xlsx")
+df[,"index_num"] <- 1:nrow(df)
+df <- df %>% arrange(ID) 
+maxid <- df$ID[length(df$ID)]
+```
+
+```{r}
+# Memasukkan data yang hilang di mana ID nya kan harus berurutan dari 1 : 12462
+tambahData <- function(id){
+  df %<>% add_row( ID=id,
+                   ISO=0,
+                   sex = NA,
+                   semester = NA,
+                   kelas = NA,
+                   prodi = NA,
+                   keterangan_2 = NA,
+                   .before = id)
+  df[id:nrow(df),"index_num"] <- id:nrow(df)
+  return(df)
+}
+
+index <- 1
+
+while(index <= maxid){
+  
+  if(df[index,"ID"] != df[index, "index_num"]){
+    df <- tambahData(index)
+  }
+  index <- index+1
+}
+
+```
+
+```{r}
+# Create all table helper
+
+# Tabel Jenis Kelamin
+tabel_jenis_kelamin <- data.frame(
+  stringsAsFactors = FALSE,
+          jenis_kelamin_id = c(1, 2, 3),
+                            jenis_kelamin.y = c("Laki-laki","Perempuan","-")
+               )
+
+
+# Tabel Semester
+tabel_semester <- data.frame(
+  stringsAsFactors = FALSE,
+          sem_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                            semester.y = c("-","I","II","III","IV","V","VI","VII","VIII")
+               )
+
+# Tabel Kelas
+tabel_kelas <- data.frame(
+  stringsAsFactors = FALSE,
+          kelas_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+                            kelas.y = c("-","A","B","C","D","E","F","G","H",
+                                      "I")
+               )
+
+# Tabel Status
+tabel_status <- data.frame(
+  stringsAsFactors = FALSE,
+         status_id = c(1, 2, 3, 4, 5),
+            status.y = c("-", "Mahasiswa", "Dosen", "Administrasi", "Umum")
+)
+
+# Tabel Unit
+tabel_unit <- data.frame(
+  stringsAsFactors = FALSE,
+   unit_id = c(1, 2, 3, 4, 5, 6),
+                    unit.y = c("-",
+                                     "polnep","psdku sanggau",
+                                     "pdd putussibau","akademi komunitas singkawang","yarsi")
+              )
+
+# Tabel Prodi
+tabel_prodi <- data.frame(
+  stringsAsFactors = FALSE,
+                         prodi_id = c(1,2,3,4,5,6,7,8,9,10,
+                                      11,12,13,14,15,16,17,18,19,
+                                      20,21,22,23),
+                          prodi = c("-","TEKNIK SIPIL",
+                                      "TEKNIK PERENCANAAN PERUMAHAN & PEMUKIMAN","D4 TEKNIK MESIN",
+                                      "D3 TEKNIK MESIN","D1 TEKNIK MESIN",
+                                      "TEKNIK LISTRIK","TEKNIK ELEKTRONIKA",
+                                      "TEKNIK INFORMATIKA","ADMINISTRASI BISNIS",
+                                      "ADMINISTRASI NEGARA","AKUNTANSI",
+                                      "AKUNTANSI SEKTOR PUBLIK",
+                                      "TEKNOLOGI PENGOLAHAN HASIL PERKEBUNAN","MANAJEMEN PERKEBUNAN",
+                                      "BUDIDAYA TANAMAN PERKEBUNAN",
+                                      "TEKNOLOGI BUDIDAYA PERIKANAN",
+                                      "TEKNOLOGI PENANGKAPAN IKAN",
+                                      "TEKNOLOGI PENGOLAHAN HASIL PERIKANAN","ARSITEKTUR",
+                                      "ARSITEK BANGUNAN GEDUNG","DESAIN KAWASAN BINAAN",
+                                      "ADMINISTRASI BISNIS OTOMOTIF")
+               )
+
+# Tabel Kegiatan
+tabel_kegiatan <- data.frame(
+        stringsAsFactors = FALSE,
+        kegiatan_id = c(1,2,3,4,5,6,7,8,9,10,11),
+        kegiatan.y = c("-",
+                     "mahasiswa semester awal",
+                     "mahasiswa semester akhir",
+                     "mahasiswa pdd",
+                     "mahasiswa psdku",
+                     "pegawai",
+                     "umum",
+                     "pertukaran pelajar perancis",
+                     "IISMAVO",
+                     "msu",
+                     "ujian akhir TI")
+)
+
+# Tabel Tahun
+tabel_tahun <- data.frame(
+        stringsAsFactors = FALSE,
+        tahun_id = c(1,2,3,4,5,6,7,8,9),
+        tahun.y = c("-",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022")
+)
+
+# Tabel Versi
+tabel_versi <- data.frame(
+        stringsAsFactors = FALSE,
+       versi_id = c(1,2,3,4,5,6,7,8,9),
+        versi.y = c("-",
+                     "6",
+                     "7",
+                     "8",
+                     "9",
+                     "10",
+                     "11",
+                     "12",
+                     "13")
+)
+```
+
+```{r}
+# Adding column
+
+# Jenis Kelamin
+df %<>% mutate(sex = coalesce(sex, "0"))
+df$sex <- toupper(df$sex)
+df %<>% mutate(jenis_kelamin_id = ifelse(str_detect(sex, "AKI"), 1, ifelse(str_detect(sex, "PER"), 2, 3)))
+
+# Semester
+df %<>% mutate(sem_id = ifelse(semester == "1", 2, 
+                               ifelse(semester == "I", 2,
+                                      ifelse(semester == "II", 3,
+                                             ifelse(semester == "III", 4, 
+                                                    ifelse(semester == "IV", 5, 
+                                                           ifelse(semester == "V", 6, 
+                                                                  ifelse(semester == "VI", 7,
+                                                                         ifelse(semester == "VII", 8,
+                                                                                ifelse(semester == "VIII", 9, 1))))))))))
+df$sem_id[is.na(df$semester)] <- 1
+
+# Kelas
+df %<>% mutate(kelas_id = ifelse(kelas=="A",2,
+                         ifelse(kelas=="MR A",2,
+                         ifelse(kelas=="MSU-A",2,
+                         ifelse(kelas=="A",2,
+                         ifelse(kelas=="Pro A",2,
+                         ifelse(kelas=="B",3,
+                         ifelse(kelas=="MR B",3,
+                         ifelse(kelas=="MSU-B",3,
+                         ifelse(kelas=="Pro B",3,
+                         ifelse(kelas=="C",4, 
+                         ifelse(kelas=="MSU-C",4,                                                                                     
+                         ifelse(kelas=="D",5,
+                         ifelse(kelas=="MSU-D",5,
+                         ifelse(kelas=="E",6,
+                         ifelse(kelas=="F",7,
+                         ifelse(kelas=="G",8,1)))))))))))))))))
+df$kelas_id[is.na(df$kelas)] <- 1
+
+# Status
+df %<>% mutate(status_id = ifelse(keterangan_1 == "Akademi Komunitas Singkawang",2,
+                        ifelse(keterangan_1 == "Akhir",2,
+                        ifelse(keterangan_1 == "Awal",2,
+                        ifelse(keterangan_1 == "PDD",2,
+                        ifelse(keterangan_1 == "PSDKU",2,
+                        ifelse(keterangan_1 == "Ujian Akhir TI",2,
+                        ifelse(keterangan_1 == "Dosen",3,
+                        ifelse(keterangan_1 == "Staf PSDKU",4,5)))))))))
+df$status_id[is.na(df$keterangan_1)] <- 1
+
+# Unit
+df %<>% mutate(unit_id = ifelse(str_detect(prodi,"PUTUSSIBAU"), 4,
+                         ifelse(str_detect(prodi,"SINGKAWANG"), 5,
+                         ifelse(prodi == "MAHASISWA LAINNYA", 1,
+                         ifelse(prodi == "PEGAWAI", 1,
+                         ifelse(prodi == "YARSI", 1,
+                         ifelse(prodi == "DOSEN", 1,
+                         ifelse(prodi == "UMUM", 1,2))))))))
+df$unit_id[is.na(df$prodi)] <- 1
+
+# Prodi
+df %<>% left_join(tabel_prodi, by = "prodi")
+
+# Kegiatan
+df %<>% mutate(kegiatan_id = 1, tahun_id = 1)
+
+
+# Versi
+df %<>% mutate(versi_id = ifelse(versi == "003" | versi == "3", 2,
+                                ifelse(versi == "004" | versi == "4", 3,
+                                       ifelse(versi == "005" | versi == "5", 4,
+                                              ifelse(versi == "006" | versi == "6", 5,
+                                                     ifelse(versi == "007" | versi == "7", 6,
+                                                            ifelse(versi == "008" | versi == "8", 7,
+                                                                   ifelse(versi == "009" | versi == "9", 8,
+                                                                          ifelse(versi == "010" | versi == "10", 9, 1)))))))))
+df$versi_id[is.na(df$versi)] <- 1
+```
+
+
+
+Perbaiki Manual
+```{r}
+df %<>% replace_na(hadir, value = FALSE) 
+
+# ubah unit_id
+df %<>% mutate(unit_id = ifelse(keterangan_1 == "Akhir" | keterangan_1 == "Awal", 2, 
+                                ifelse(keterangan_1 == "PDD", 4, 
+                                       ifelse(keterangan_1 == "PSDKU", 3, 1))))
+df$unit_id[is.na(df$unit_id)] <- 1
+
+# ubah kegiatan_id
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Awal", 2, 
+                                    ifelse(keterangan_1 == "Akhir", 3, 
+                                           ifelse(keterangan_1 == "PDD", 4,
+                                                  ifelse(keterangan_1 == "PSDKU", 5,
+                                                         ifelse(keterangan_1 == "Pertukaran Pelajar Perancis", 8, 
+                                                                ifelse(keterangan_1 == "IISMAVO", 9, 1))))))) 
+df$kegiatan_id[is.na(df$kegiatan_id)] <- 1
+
+# ubah tahun_id
+df %<>% mutate(tahun_id = ifelse(keterangan_2 == "2019", 6,
+                                 ifelse(keterangan_2 == "2020", 7,
+                                        ifelse(keterangan_2 == "2021", 8,
+                                               ifelse(keterangan_2 == "2022", 9, 1))))) 
+df$tahun_id[is.na(df$tahun_id)] <- 1
+
+# ubah prodi_id
+df$prodi_id[is.na(df$prodi_id)] <- 1
+```
+
+
+Cek and Ricek
+```{r}
+#cek jenis kelamin : Sudah OK
+df %>% group_by(sex, jenis_kelamin_id) %>% summarise(jumlah =n()) # 
+
+#cek semester : Sudah OK
+df %>% group_by(semester, sem_id) %>% summarise(jumlah=n()) 
+
+#cek kelas : Sudah OK
+df %>% group_by(kelas, kelas_id) %>% summarise(jumlah=n()) 
+
+#cek unit : Sudah OK
+df %>% group_by(keterangan_1, prodi, unit_id) %>% summarize(jumlah=n())
+
+#cek kegiatan : Sudah OK
+df %>% filter(is.na(keterangan_1))
+
+#cek tahun
+df %>% group_by(keterangan_2, tahun_id) %>% summarise(jumlah=n())
+
+#cek versi
+df %>% group_by(versi, versi_id) %>% summarise(jumlah=n())
+
+#cek prodi
+df %>% group_by(prodi, prodi_id) %>% summarise(jumlah=n())
+
+
+```
+
+Save result
+```{r}
+
+DF <- df %>% select(ISO, hadir, nama, tempat_lahir, tanggal_lahir, nim, jenis_kelamin_id, prodi_id, sem_id, kelas_id, status_id, unit_id, kegiatan_id, tahun_id, versi_id, l1, g1, l2, g2, total)
+
+export(DF, "DataCleaningResult_ECT.xlsx")
+
+aggr(DF, col=c('navyblue','yellow'),
+numbers=TRUE, sortVars=TRUE,
+labels=names(DF), cex.axis=.7,
+gap=3, ylab=c("Missing data","Pattern"))
+```
+
+++++++++++++++++++++++++++++++++Normalize Data++++++++++++++++++++++++++++++++
+
+```{r}
+df_ect <- DF %>% left_join(tabel_jenis_kelamin, by="jenis_kelamin_id")
+df_ect <- df_ect %>% left_join(tabel_prodi, by="prodi_id")
+df_ect <- df_ect %>% left_join(tabel_semester, by="sem_id")
+df_ect <- df_ect %>% left_join(tabel_kelas, by="kelas_id")
+df_ect <- df_ect %>% left_join(tabel_status, by="status_id")
+df_ect <- df_ect %>% left_join(tabel_unit, by="unit_id")
+df_ect <- df_ect %>% left_join(tabel_kegiatan, by="kegiatan_id")
+df_ect <- df_ect %>% left_join(tabel_tahun, by="tahun_id")
+df_ect <- df_ect %>% left_join(tabel_versi, by="versi_id")
+df_ect %<>% filter(total > 0,
+                   status_id == 2,
+                   unit_id == 2)
+df_ect %<>% mutate(tes = "ECT")
+df_ect %<>% select(Tes=tes, Tahun=tahun.y, Kegiatan=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas.y, Nama=nama, NIM=nim, Skor=total)
+df_ect$Kegiatan = toupper(df_ect$Kegiatan)
+df_ect$Nama = toupper(df_ect$Nama)
+export(df_ect, "ECT_data_polnep.xlsx")
+df_ect
+```
+```{r}
+EPTECT <- rbind(df_ept, df_ect)
+export(EPTECT, "EPTECT.csv")
+```
+

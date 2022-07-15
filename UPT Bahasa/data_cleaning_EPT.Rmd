@@ -1,0 +1,502 @@
+---
+title: "Data Cleaning new database"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list =ls())
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(pacman, dplyr, magrittr, rio, stringr, sjmisc, VIM)
+setwd("C:/Users/ASUS/Dropbox/R Programming/R-Kerja/UPT Bahasa/")
+# load("data_cleaning_image.RData")
+```
+
+```{r}
+df <- import("qry_EPT_raw_data.xlsx")
+df[,"index_num"] <- 1:nrow(df)
+df <- df %>% arrange(ID) 
+maxid <- df$ID[length(df$ID)]
+```
+
+
+```{r}
+# Memasukkan data yang hilang di mana ID nya kan harus berurutan dari 1 : maksimum ID
+tambahData <- function(id){
+  df %<>% add_row( ID=id,
+                   ISO=477,
+                   sex = "3",
+                   semester = "1",
+                   kelas = "1",
+                   prodi = "1",
+                   keterangan_2 = "1",
+                   .before = id)
+  df[id:nrow(df),"index_num"] <- id:nrow(df)
+  return(df)
+}
+
+index <- 1
+
+while(index <= maxid){
+  
+  if(df[index,"ID"] != df[index, "index_num"]){
+    df <- tambahData(index)
+  }
+  index <- index+1
+}
+
+```
+
+Tabel Jenis Kelamin
+```{r}
+tabel_jenis_kelamin <- data.frame(
+  stringsAsFactors = FALSE,
+          jenis_kelamin_id = c(1, 2, 3),
+                            jenis_kelamin.y = c("Laki-laki","Perempuan","-")
+               )
+```
+
+
+
+Tambah Jenis Kelamin ID
+```{r}
+df %<>% mutate(sex = coalesce(sex, "0"))
+df$sex <- toupper(df$sex)
+
+df %<>% mutate(jenis_kelamin_id = ifelse(str_detect(sex, "AKI"), 1, ifelse(str_detect(sex, "PER"), 2, 3)))
+```
+
+Tabel semester
+```{r}
+tabel_semester <- data.frame(
+  stringsAsFactors = FALSE,
+          sem_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                            semester.y = c("-","I","II","III","IV","V","VI","VII","VIII")
+               )
+```
+
+
+Tambah Semester ID
+```{r}
+df %<>% mutate(sem_id = ifelse(semester == "1", 2, 
+                               ifelse(semester == "I", 2,
+                                      ifelse(semester == "II", 3,
+                                             ifelse(semester == "III", 4, 
+                                                    ifelse(semester == "IV", 5, 
+                                                           ifelse(semester == "V", 6, 
+                                                                  ifelse(semester == "VI", 7,
+                                                                         ifelse(semester == "VII", 8,
+                                                                                ifelse(semester == "VIII", 9, 1))))))))))
+```
+
+Tabel Kelas ID
+```{r}
+tabel_kelas <- data.frame(
+  stringsAsFactors = FALSE,
+          kelas_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+                            kelas.y = c("-","A","B","C","D","E","F","G","H",
+                                      "I")
+               )
+```
+
+
+Tambah Kelas ID
+```{r}
+df %<>% mutate(kelas_id = ifelse(kelas=="A",2,
+                         ifelse(kelas=="MR A",2,
+                         ifelse(kelas=="MSU-A",2,
+                         ifelse(kelas=="A",2,
+                         ifelse(kelas=="Pro A",2,
+                         ifelse(kelas=="B",3,
+                         ifelse(kelas=="MR B",3,
+                         ifelse(kelas=="MSU-B",3,
+                         ifelse(kelas=="Pro B",3,
+                         ifelse(kelas=="C",4,                                                                                         ifelse(kelas=="MSU-C",4,                                                                                     ifelse(kelas=="D",5,
+                         ifelse(kelas=="MSU-D",5,
+                         ifelse(kelas=="E",6,
+                         ifelse(kelas=="F",7,
+                         ifelse(kelas=="G",8,1)))))))))))))))))
+```
+
+Tabel status ID
+```{r}
+tabel_status <- data.frame(
+  stringsAsFactors = FALSE,
+         status_id = c(1, 2, 3, 4, 5),
+            status.y = c("-", "Mahasiswa", "Dosen", "Administrasi", "Umum")
+)
+```
+
+Tambah Status ID
+```{r}
+df %<>% mutate(status_id = ifelse(keterangan_1 == "Akademi Komunitas Singkawang",2,
+                        ifelse(keterangan_1 == "Akhir",2,
+                        ifelse(keterangan_1 == "Awal",2,
+                        ifelse(keterangan_1 == "PDD",2,
+                        ifelse(keterangan_1 == "PSDKU",2,
+                        ifelse(keterangan_1 == "Ujian Akhir TI",2,
+                        ifelse(keterangan_1 == "Dosen",3,
+                        ifelse(keterangan_1 == "Staf PSDKU",4,5)))))))))
+```
+
+Tabel Unit ID
+```{r}
+tabel_unit <- data.frame(
+  stringsAsFactors = FALSE,
+   unit_id = c(1, 2, 3, 4, 5, 6),
+                    unit.y = c("-",
+                                     "polnep","psdku sanggau",
+                                     "pdd putussibau","akademi komunitas singkawang","yarsi")
+              )
+```
+
+
+Tambah Unit ID
+```{r}
+df %<>% mutate(unit_id = ifelse(str_detect(prodi,"PUTUSSIBAU"), 4,
+                         ifelse(str_detect(prodi,"SINGKAWANG"), 5,
+                         ifelse(prodi == "MAHASISWA LAINNYA", 1,
+                         ifelse(prodi == "PEGAWAI", 1,
+                         ifelse(prodi == "YARSI", 1,
+                         ifelse(prodi == "DOSEN", 1,
+                         ifelse(prodi == "UMUM", 1,2)))))))) 
+```
+
+Tabel Prodi ID
+```{r}
+tabel_prodi <- data.frame(
+  stringsAsFactors = FALSE,
+                         prodi_id = c(1,2,3,4,5,6,7,8,9,10,
+                                      11,12,13,14,15,16,17,18,19,
+                                      20,21,22,23),
+                          prodi = c("-","TEKNIK SIPIL",
+                                      "TEKNIK PERENCANAAN PERUMAHAN & PEMUKIMAN","D4 TEKNIK MESIN",
+                                      "D3 TEKNIK MESIN","D1 TEKNIK MESIN",
+                                      "TEKNIK LISTRIK","TEKNIK ELEKTRONIKA",
+                                      "TEKNIK INFORMATIKA","ADMINISTRASI BISNIS",
+                                      "ADMINISTRASI NEGARA","AKUNTANSI",
+                                      "AKUNTANSI SEKTOR PUBLIK",
+                                      "TEKNOLOGI PENGOLAHAN HASIL PERKEBUNAN","MANAJEMEN PERKEBUNAN",
+                                      "BUDIDAYA TANAMAN PERKEBUNAN",
+                                      "TEKNOLOGI BUDIDAYA PERIKANAN",
+                                      "TEKNOLOGI PENANGKAPAN IKAN",
+                                      "TEKNOLOGI PENGOLAHAN HASIL PERIKANAN","ARSITEKTUR",
+                                      "ARSITEK BANGUNAN GEDUNG","DESAIN KAWASAN BINAAN",
+                                      "ADMINISTRASI BISNIS OTOMOTIF")
+               )
+```
+
+Tambah Prodi ID
+
+```{r}
+df %<>% left_join(tabel_prodi, by = "prodi")
+```
+
+Tambah Nama Kegiatan ID
+
+```{r}
+tabel_kegiatan <- data.frame(
+        stringsAsFactors = FALSE,
+        kegiatan_id = c(1,2,3,4,5,6,7,8,9,10,11),
+        kegiatan.y = c("-",
+                     "mahasiswa semester awal",
+                     "mahasiswa semester akhir",
+                     "mahasiswa pdd",
+                     "mahasiswa psdku",
+                     "pegawai",
+                     "umum",
+                     "mahasiswa akedemi komunitas singkawang",
+                     "mahasiswa yarsi",
+                     "msu",
+                     "ujian akhir TI")
+)
+
+tabel_tahun <- data.frame(
+        stringsAsFactors = FALSE,
+        tahun_id = c(1,2,3,4,5,6,7,8,9),
+        tahun.y = c("-",
+                  "2015",
+                  "2016",
+                  "2017",
+                  "2018",
+                  "2019",
+                  "2020",
+                  "2021",
+                  "2022")
+)
+
+df %<>% mutate(kegiatan_id = 1, tahun_id = 1) 
+
+```
+
+Tambah Tabel Versi
+
+```{r}
+tabel_versi <- data.frame(
+        stringsAsFactors = FALSE,
+       versi_id = c(1,2,3,4,5,6,7,8,9),
+        versi.y = c("-",
+                     "6",
+                     "7",
+                     "8",
+                     "9",
+                     "10",
+                     "11",
+                     "12",
+                     "13")
+)
+```
+
+Tambah Versi ID
+
+```{r}
+df %<>% mutate(versi_id = ifelse(versi == "006" | versi == "6", 2,
+                                ifelse(versi == "007" | versi == "7", 3,
+                                       ifelse(versi == "008" | versi == "8", 4,
+                                              ifelse(versi == "009" | versi == "9", 5,
+                                                     ifelse(versi == "010" | versi == "10", 6,
+                                                            ifelse(versi == "011" | versi == "11", 7,
+                                                                   ifelse(versi == "012" | versi == "12", 8,
+                                                                          ifelse(versi == "013" | versi == "13", 9, 1)))))))))
+df %<>% replace_na(versi_id, value = 1)
+
+```
+
+Perbaiki kolom hadir
+```{r}
+df %<>% replace_na(hadir, value = FALSE) 
+```
+
+
+Perbaikan manual
+```{r}
+df[10194,"status_id"] <- 4
+df[10200,"status_id"] <- 4
+
+df %<>% mutate(unit_id = ifelse(((prodi=="UMUM")&(keterangan_1=="PDD")),4,unit_id))
+df %<>% mutate(unit_id = ifelse(((prodi=="UMUM")&(keterangan_1=="PSDKU")),3,unit_id))
+df %<>% mutate(unit_id = ifelse(((prodi=="UMUM")&(keterangan_1=="Staf PSDKU")),3,unit_id))
+df %<>% mutate(status_id = ifelse(((prodi=="UMUM")&(keterangan_1=="Staf PSDKU")),3,status_id))
+df %<>% mutate(status_id = ifelse(prodi == "YARSI", 2, status_id))
+df %<>% mutate(unit_id = ifelse((str_detect(jabatan, "Akuntansi") & keterangan_1 == "PSDKU"), 3, unit_id))
+df %<>% mutate(unit_id = ifelse((jabatan == "TBP" & keterangan_1 == "PDD"), 4, unit_id))
+df %<>% mutate(unit_id = ifelse((jabatan == "TPHP" & keterangan_1 == "PDD"), 4, unit_id))
+df %<>% mutate(unit_id = ifelse((jabatan == "TME" & keterangan_1 == "PSDKU"), 3, unit_id))
+df %<>% mutate(unit_id = ifelse((jabatan == "TPHP 5A" & keterangan_1 == "PSDKU"), 3, unit_id))
+df %<>% mutate(unit_id = ifelse(keterangan_1 == "Akademi Komunitas Singkawang", 5, unit_id)) 
+df %<>% mutate(unit_id = ifelse(keterangan_1 == "MSU", 1, unit_id))
+df %<>% mutate(unit_id = ifelse(keterangan_1 == "PDD", 4, unit_id))
+df %<>% mutate(unit_id = ifelse(keterangan_1 == "PSDKU", 3, unit_id))
+df %<>% mutate(unit_id = ifelse((prodi == "DOSEN" & keterangan_1 == "Umum"), 2, unit_id))
+df %<>% mutate(status_id = ifelse((prodi == "DOSEN" & keterangan_1 == "Umum"), 3, status_id))
+df %<>% mutate(kelas_id = ifelse(jabatan == "Akuntansi 5A", 2, kelas_id)) 
+df %<>% mutate(kelas_id = ifelse(jabatan == "Akuntansi 5B", 3, kelas_id))
+df %<>% mutate(kelas_id = ifelse(jabatan == "Akuntansi 5C", 4, kelas_id))
+df %<>% mutate(kelas_id = ifelse(jabatan == "TPHP 5A", 2, kelas_id))
+df %<>% mutate(kelas_id = ifelse(jabatan == "TPHP 5B", 3, kelas_id))
+df %<>% mutate(status_id = ifelse((keterangan_1 == "Staf PSDKU") & (kelas == "PEG"), 4, status_id))
+df %<>% mutate(status_id = ifelse((keterangan_1 == "Dosen") & (prodi == "DOSEN"), 3, status_id))
+df %<>% mutate(status_id = ifelse((keterangan_1 == "Dosen") & (prodi == "PEGAWAI"), 4, status_id))
+df %<>% mutate(unit_id = ifelse(keterangan_1 == "Dosen", 2, unit_id))
+df %<>% mutate(status_id = ifelse((is.na(keterangan_1))&(semester == "1"), 1, status_id))
+df %<>% mutate(status_id = ifelse((is.na(keterangan_1))&(semester == "V"), 2, status_id))
+df %<>% mutate(unit_id = ifelse(keterangan_1 == "Yarsi", 6, unit_id)) 
+df %<>% mutate(status_id = ifelse(keterangan_1 == "MSU", 2, status_id),
+               unit_id = ifelse(keterangan_1 == "MSU", 2, unit_id),
+               kelas_id = ifelse(kelas == "MSU", 1,
+                                 ifelse(kelas == "MSU-A", 2,
+                                        ifelse(kelas == "MSU-B", 3,
+                                               ifelse(kelas == "MSU-C", 4,
+                                                      ifelse(kelas == "MSU-D", 5, kelas_id))))))
+df %<>% mutate(status_id = ifelse((is.na(keterangan_1) & semester == "1" & kelas == "1"), 1, 
+                                  ifelse((is.na(keterangan_1) & semester == "V" & kelas == "A"), 2, status_id)))
+df %<>% mutate(unit_id = ifelse((is.na(keterangan_1) & semester == "1" & kelas == "1"), 1,
+                                ifelse((is.na(keterangan_1) & semester == "V" & kelas == "A"), 2, unit_id)))
+df %<>% mutate(kelas_id = ifelse(kelas == "A", 2,
+                                 ifelse(kelas == "B", 3,
+                                        ifelse(kelas == "C", 4,
+                                               ifelse(kelas == "D", 5,
+                                                      ifelse(kelas == "E", 6,
+                                                             ifelse(kelas == "F", 7,
+                                                                    ifelse(kelas == "G", 8, kelas_id)))))))) 
+df %<>% mutate(kelas_id = ifelse(kelas == "MR A", 2,
+                                 ifelse(kelas == "MR B", 3,
+                                        ifelse(kelas == "Pro A", 2,
+                                               ifelse(kelas == "Pro B", 3, 
+                                                      ifelse(kelas == "PDD 1", 1,
+                                                             ifelse(kelas == "PDD 2", 1,
+                                                                    ifelse(kelas == "PDD 3", 1,
+                                                                           ifelse(kelas == "PDD 4", 1,
+                                                                                  ifelse(kelas == "PDD 5", 1,
+                                                                                         ifelse(kelas == "PDD 6", 1,
+                                                                                                ifelse(kelas == "AK 3", 1,
+                                                                                                       ifelse(kelas == "Mesin-3", 1,
+                                                                                                              ifelse(kelas == "TPHP-3", 1,
+                                                                                                                     ifelse(kelas == "PEG", 1,
+                                                                                                                            ifelse(kelas == "1", 1, kelas_id))))))))))))))))
+df %<>% mutate(kelas_id = ifelse((keterangan_1 == "Akhir" & semester == "VI" & is.na(kelas)), 2, 
+                                 ifelse((keterangan_1 == "Awal" & semester == "I" & is.na(kelas)), 2, 
+                                        ifelse(keterangan_1 == "Dosen", 1, kelas_id))))
+df %<>% mutate(kelas_id = ifelse((is.na(keterangan_1) & semester == "1" & kelas == "1" & is.na(jabatan)), 1, kelas_id))
+df %<>% mutate(kelas_id = ifelse((is.na(keterangan_1) & semester == "V" & kelas == "A" & is.na(jabatan)), 2, kelas_id))
+df %<>% mutate(sem_id = ifelse(keterangan_1 == "Umum" & semester == "1" & kelas == "1", 1, sem_id))
+df %<>% mutate(sem_id = ifelse(keterangan_1 == "Umum" & semester == "I" & kelas == "A" & status_id == 3, 1, sem_id))
+df %<>% mutate(sem_id = ifelse(keterangan_1 == "PSDKU" & semester == "PSDKU" & kelas == "AK 3", 4, sem_id))
+df %<>% mutate(sem_id = ifelse(keterangan_1 == "PSDKU" & semester == "PSDKU" & kelas == "Mesin-3", 4, sem_id))
+df %<>% mutate(sem_id = ifelse(keterangan_1 == "PSDKU" & semester == "PSDKU" & kelas == "TPHP-3", 4, sem_id))
+df %<>% mutate(sem_id = ifelse(keterangan_1 == "Dosen" & is.na(semester) & is.na(kelas), 1, sem_id))
+df %<>% mutate(sem_id = ifelse(is.na(keterangan_1) & semester == "1" & kelas == "1", 1, sem_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "1" | prodi == "DOSEN" | prodi == "MAHASISWA LAINNYA" | prodi == "PEGAWAI" | prodi == "YARSI", 1, prodi_id)) 
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD PUTUSSIBAU" & jabatan == "TBP", 17, prodi_id)) 
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD PUTUSSIBAU" & jabatan == "TPHP", 14, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD PUTUSSIBAU" & jabatan == "TSI", 2, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD PUTUSSIBAU TEKNIK BUDIDAYA PERIKANAN", 17, prodi_id)) 
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD PUTUSSIBAU TEKNIK SIPIL", 2, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD PUTUSSIBAU TPHP", 14, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD SINGKAWANG D2 TEKNIK INFORMATIKA", 9, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PDD SINGKAWANG D2 TPHP", 14, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PSDKU SANGGAU" & jabatan == "Akuntansi 5A", 12, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PSDKU SANGGAU" & jabatan == "Akuntansi 5B", 12, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PSDKU SANGGAU" & jabatan == "Akuntansi 5C", 12, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PSDKU SANGGAU" & jabatan == "TME", 5, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PSDKU SANGGAU" & jabatan == "TPHP 5A", 14, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "PSDKU SANGGAU" & jabatan == "TPHP 5B", 14, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "PDD 1", 1, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "PDD 2", 1, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "PDD 3", 1, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "PDD 4", 1, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "PDD 5", 1, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "PDD 6", 1, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "PEG", 1, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "Mesin-3", 5, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "TPHP-3", 14, prodi_id))
+df %<>% mutate(prodi_id = ifelse(prodi == "UMUM" & kelas == "AK 3", 12, prodi_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Akademi Komunitas Singkawang", 8, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Akhir" & status_id == 2, 3, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Awal" & status_id == 2, 2, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(status_id == 4, 6, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "MSU", 10, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "PDD", 4, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "PSDKU", 5, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Staf PSDKU", 6, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Ujian Akhir TI", 11, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Yarsi", 9, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_1 == "Umum" & keterangan_2 == "2021" & status_id == 3, 6, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(keterangan_2 == "1", 1, kegiatan_id))
+df %<>% mutate(kegiatan_id = ifelse(is.na(keterangan_1) & is.na(keterangan_2), 11, kegiatan_id))
+df %<>% mutate(tahun_id = ifelse(keterangan_2 == "2017", 4, 
+                                 ifelse(keterangan_2 == "2018", 5,
+                                        ifelse(keterangan_2 == "2019", 6,
+                                               ifelse(keterangan_2 == "2020", 7,
+                                                      ifelse(keterangan_2 == "2021", 8,
+                                                             ifelse(keterangan_2 == "2022", 4, 1)))))))
+df %<>% mutate(tahun_id = ifelse(is.na(keterangan_1) & is.na(keterangan_2), 4, tahun_id)) 
+df %<>% mutate(versi_id = ifelse(versi == "006", 2,
+                                 ifelse(versi == "007", 3,
+                                        ifelse(versi == "008", 4,
+                                               ifelse(versi == "009", 5,
+                                                      ifelse(versi == "010", 6,
+                                                             ifelse(versi == "011", 7,
+                                                                    ifelse(versi == "012", 8,
+                                                                           ifelse(versi == "013", 9,
+                                                                                  ifelse(versi == "6", 2,
+                                                                                         ifelse(versi == "7", 3,
+                                                                                                ifelse(versi == "8", 4,
+                                                                                                       ifelse(versi == "9", 5,
+                                                                                                              ifelse(versi == "10", 6,
+                                                                                                                     ifelse(versi == "11", 7,
+                                                                                                                            ifelse(versi == "12", 8,
+                                                                                                                                   ifelse(versi == "13", 9,
+                                                                                                                                          ifelse(versi == "14", 10,
+                                                                                                                                                 ifelse(versi == "15", 11, 1))))))))))))))))))) 
+df %<>% mutate(versi_id = ifelse(is.na(versi),1,1))
+
+```
+
+Cek status id dan jenis id yang mencurigakan
+```{r, }
+
+df %>% select(keterangan_1, 
+              keterangan_2,
+              semester,
+              kelas, 
+              jabatan,
+              prodi,
+              status_id, 
+              unit_id, 
+              kelas_id, 
+              sem_id, prodi_id, kegiatan_id, tahun_id) %>% 
+  group_by(keterangan_1, keterangan_2) %>% 
+  summarize(status_id = first(status_id),
+            unit_id = first(unit_id),
+            # sem_id = first(sem_id),
+            # kelas_id = first(kelas_id),
+            # prodi_id = first(prodi_id),
+            kegiatan_id = first(kegiatan_id),
+            tahun_id = first(tahun_id),
+            jumlah=n()) %>% 
+  left_join(tabel_status, by = 'status_id') %>% 
+  left_join(tabel_unit, by = "unit_id") %>% 
+  # left_join(tabel_kelas, by = "kelas_id") %>% 
+  # left_join(tabel_semester, by = "sem_id") %>%
+  # rename(PRODI = prodi) %>% 
+  # left_join(tabel_prodi, by = "prodi_id") %>%
+        left_join(tabel_kegiatan, by = "kegiatan_id") %>% 
+        left_join(tabel_tahun, by = "tahun_id") %>% 
+        ungroup() %>% 
+  select(keterangan_1,
+         keterangan_2,
+         # semester,
+         # kelas,
+         # jabatan,
+         status.y,
+         unit.y,
+         # prodi,
+         # kelas.y,
+         # semester.y,
+         kegiatan.y,
+         tahun.y,
+         jumlah) 
+
+
+ 
+
+
+```
+
+```{r}
+DF <- df %>% select(c(2,22,3,4,5,6,24,29,25,26,27,28,30,31,32,14,15,16,17,18,19,20))
+export(DF, "DataCleaningResult_EPT.xlsx")
+
+aggr(DF, col=c('navyblue','yellow'),
+numbers=TRUE, sortVars=TRUE,
+labels=names(DF), cex.axis=.7,
+gap=3, ylab=c("Missing data","Pattern"))
+```
+
+
+
+
+++++++++++++++++++++++++++++++++Normalize Data++++++++++++++++++++++++++++++++
+
+```{r}
+df_ept <- DF %>% left_join(tabel_jenis_kelamin, by="jenis_kelamin_id")
+df_ept <- df_ept %>% left_join(tabel_prodi, by="prodi_id")
+df_ept <- df_ept %>% left_join(tabel_semester, by="sem_id")
+df_ept <- df_ept %>% left_join(tabel_kelas, by="kelas_id")
+df_ept <- df_ept %>% left_join(tabel_status, by="status_id")
+df_ept <- df_ept %>% left_join(tabel_unit, by="unit_id")
+df_ept <- df_ept %>% left_join(tabel_kegiatan, by="kegiatan_id")
+df_ept <- df_ept %>% left_join(tabel_tahun, by="tahun_id")
+df_ept <- df_ept %>% left_join(tabel_versi, by="versi_id")
+df_ept %<>% filter(total > 0,
+                   status_id == 2,
+                   unit_id == 2)
+df_ept %<>% mutate(tes = "EPT")
+df_ept %<>% select(Tes=tes, Tahun=tahun.y, Kegiatan=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas_id, Nama=nama, NIM=nim, Skor=total)
+df_ept$Kegiatan = toupper(df_ept$Kegiatan)
+df_ept$Nama = toupper(df_ept$Nama)
+export(df_ept, "EPT_data_polnep.xlsx")
+```
+
+
+
