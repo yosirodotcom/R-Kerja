@@ -492,7 +492,7 @@ df_ept %<>% filter(total > 0,
                    status_id == 2,
                    unit_id == 2)
 df_ept %<>% mutate(tes = "EPT")
-df_ept %<>% select(Tes=tes, Tahun=tahun.y, Kegiatan=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas_id, Nama=nama, NIM=nim, Skor=total)
+df_ept %<>% select(Tes=tes, Tahun=tahun.y, Kegiatan=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas.y, Nama=nama, NIM=nim, Skor=total)
 df_ept$Kegiatan = toupper(df_ept$Kegiatan)
 df_ept$Nama = toupper(df_ept$Nama)
 export(df_ept, "EPT_data_polnep.xlsx")

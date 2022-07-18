@@ -327,14 +327,21 @@ df_ect %<>% filter(total > 0,
                    status_id == 2,
                    unit_id == 2)
 df_ect %<>% mutate(tes = "ECT")
-df_ect %<>% select(Tes=tes, Tahun=tahun.y, Kegiatan=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas.y, Nama=nama, NIM=nim, Skor=total)
-df_ect$Kegiatan = toupper(df_ect$Kegiatan)
+df_ect %<>% select(Tes=tes, Tahun=tahun.y, Mahasiswa=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas.y, Nama=nama, NIM=nim, Skor=total)
+df_ect$Mahasiswa = toupper(df_ect$Mahasiswa)
 df_ect$Nama = toupper(df_ect$Nama)
 export(df_ect, "ECT_data_polnep.xlsx")
 df_ect
 ```
 ```{r}
 EPTECT <- rbind(df_ept, df_ect)
-export(EPTECT, "EPTECT.csv")
+EPTECT <- na.omit(EPTECT)
+EPTECT %<>% filter(Mahasiswa != "UJIAN AKHIR TI")
+EPTECT %<>% mutate(Mahasiswa = ifelse(Mahasiswa == "MAHASISWA SEMESTER AKHIR", "AKHIR", "AWAL"))
+export(EPTECT, "EPTECT.xlsx")
 ```
+
+
+
+
 
