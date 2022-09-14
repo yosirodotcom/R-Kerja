@@ -1,9 +1,10 @@
+
 update.packages ()
 pacman::p_load(pacman, dplyr, rio, RODBC, magrittr)
 
 setwd("C:/Users/ASUS/Desktop")
 
-dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/Cloud Data/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:/Users/ASUS/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
 
 tabel1 <- sqlFetch(dta, "mhs_data_T")
 
@@ -28,7 +29,7 @@ tabel_join2 <- tabel_join1 %>% group_by(nim) %>% slice(1) %>% arrange(nama.x)
 
 
 # Export 1 by 1
-export(tabel_join2, file = "BTP 7A.xlsx")
+export(tabel_join2, file = "BDP 6C.xlsx")
 
 # Join all file
 

@@ -390,25 +390,25 @@ df %<>% mutate(tahun_id = ifelse(keterangan_2 == "2017", 4,
                                                       ifelse(keterangan_2 == "2021", 8,
                                                              ifelse(keterangan_2 == "2022", 4, 1)))))))
 df %<>% mutate(tahun_id = ifelse(is.na(keterangan_1) & is.na(keterangan_2), 4, tahun_id)) 
-df %<>% mutate(versi_id = ifelse(versi == "006", 2,
-                                 ifelse(versi == "007", 3,
-                                        ifelse(versi == "008", 4,
-                                               ifelse(versi == "009", 5,
-                                                      ifelse(versi == "010", 6,
-                                                             ifelse(versi == "011", 7,
-                                                                    ifelse(versi == "012", 8,
-                                                                           ifelse(versi == "013", 9,
-                                                                                  ifelse(versi == "6", 2,
-                                                                                         ifelse(versi == "7", 3,
-                                                                                                ifelse(versi == "8", 4,
-                                                                                                       ifelse(versi == "9", 5,
-                                                                                                              ifelse(versi == "10", 6,
-                                                                                                                     ifelse(versi == "11", 7,
-                                                                                                                            ifelse(versi == "12", 8,
-                                                                                                                                   ifelse(versi == "13", 9,
-                                                                                                                                          ifelse(versi == "14", 10,
-                                                                                                                                                 ifelse(versi == "15", 11, 1))))))))))))))))))) 
-df %<>% mutate(versi_id = ifelse(is.na(versi),1,1))
+# df %<>% mutate(versi_id = ifelse(versi == "006", 2,
+#                                  ifelse(versi == "007", 3,
+#                                         ifelse(versi == "008", 4,
+#                                                ifelse(versi == "009", 5,
+#                                                       ifelse(versi == "010", 6,
+#                                                              ifelse(versi == "011", 7,
+#                                                                     ifelse(versi == "012", 8,
+#                                                                            ifelse(versi == "013", 9,
+#                                                                                   ifelse(versi == "6", 2,
+#                                                                                          ifelse(versi == "7", 3,
+#                                                                                                 ifelse(versi == "8", 4,
+#                                                                                                        ifelse(versi == "9", 5,
+#                                                                                                               ifelse(versi == "10", 6,
+#                                                                                                                      ifelse(versi == "11", 7,
+#                                                                                                                             ifelse(versi == "12", 8,
+#                                                                                                                                    ifelse(versi == "13", 9,
+#                                                                                                                                           ifelse(versi == "14", 10,
+#                                                                                                                                                  ifelse(versi == "15", 11, 1))))))))))))))))))) 
+# df %<>% mutate(versi_id = ifelse(is.na(versi),1,1))
 
 ```
 
@@ -492,8 +492,8 @@ df_ept %<>% filter(total > 0,
                    status_id == 2,
                    unit_id == 2)
 df_ept %<>% mutate(tes = "EPT")
-df_ept %<>% select(Tes=tes, Tahun=tahun.y, Kegiatan=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas.y, Nama=nama, NIM=nim, Skor=total)
-df_ept$Kegiatan = toupper(df_ept$Kegiatan)
+df_ept %<>% select(Tes=tes, Tahun=tahun.y, Mahasiswa=kegiatan.y, Prodi=prodi, Semester=semester.y, Kelas=kelas.y, Nama=nama, NIM=nim, Skor=total)
+df_ept$Mahasiswa = toupper(df_ept$Mahasiswa)
 df_ept$Nama = toupper(df_ept$Nama)
 export(df_ept, "EPT_data_polnep.xlsx")
 ```

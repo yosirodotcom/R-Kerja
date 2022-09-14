@@ -338,6 +338,10 @@ EPTECT <- rbind(df_ept, df_ect)
 EPTECT <- na.omit(EPTECT)
 EPTECT %<>% filter(Mahasiswa != "UJIAN AKHIR TI")
 EPTECT %<>% mutate(Mahasiswa = ifelse(Mahasiswa == "MAHASISWA SEMESTER AKHIR", "AKHIR", "AWAL"))
+EPTECT %<>% mutate(Keterangan = ifelse(Tes == "ECT" & Skor < 400, "< 400",
+                                              ifelse(Tes == "ECT" & Skor >= 400, ">= 400",
+                                                     ifelse(Tes == "EPT" & Skor < 400, "< 400",
+                                                            ifelse(Tes == "EPT" & Skor >= 400, ">= 400", "None")))))
 export(EPTECT, "EPTECT.xlsx")
 ```
 

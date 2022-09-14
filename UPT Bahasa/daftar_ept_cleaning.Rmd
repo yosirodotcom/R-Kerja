@@ -1,0 +1,48 @@
+---
+title: "Daftar EPT Cleaning"
+output: html_document
+date: '2022-07-29'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(dplyr, magrittr, rio)
+setwd("C:/Users/ASUS/Dropbox/R Programming/R-Kerja/UPT Bahasa")
+```
+
+
+Load dataframe
+```{r}
+df <- import("daftar_toefl.xlsx")
+df %<>% select(ID, tanggal, waktu, ruangan, pengawas_1, ketua, admin)
+df
+```
+```{r}
+table(df$pengawas_1)
+```
+```{r}
+df %<>% mutate(Pengawas_ID = ifelse(pengawas_1 == "Anggita", 10, 
+                                    ifelse(pengawas_1 == "Ardi Marwan", 2, 
+                                           ifelse(pengawas_1 == "Dra. Lilis Listiyawati, M.Si.", 3, 
+                                                  ifelse(pengawas_1 == "Lilis Listiyawati", 3, 
+                                                         ifelse(pengawas_1 == "Nurul Fadillah", 9, 
+                                                                ifelse(pengawas_1 == "Rika Irawati", 11, 
+                                                                       ifelse(pengawas_1 == "Yosi Ronadi", 13, 
+                                                                              ifelse(pengawas_1 == "Anggita, S.Pd., M.Pd.", 10, 
+                                                                                     ifelse(pengawas_1 == "Arsanti Budiarti", 16, 
+                                                                                            ifelse(pengawas_1 == "Halima", 14, 
+                                                                                                   ifelse(pengawas_1 == "M. Ali", 8, 
+                                                                                                          ifelse(pengawas_1 == "Nurul Fadhillah", 9, 
+                                                                                                                 ifelse(pengawas_1 == "Nurul Fitriani", 5, 
+                                                                                                                        ifelse(pengawas_1 == "Wawan Setiawan", 
+                                                                                                                               15, 1)))))))))))))))
+df %<>% mutate(Ketua_ID = ifelse(ketua == "Dr. Ardi Marwan, M.Ed.", 2, ifelse(ketua == "Dra. Lilis Listiyawati, M.Si.", 3, 1))) 
+df %<>% mutate(Admin_ID = ifelse(admin == "Halima", 14, ifelse(admin == "Yosi Ronadi", 13, 1)))
+table(df$Admin_ID)
+```
+```{r}
+# colnames(df)
+df %<>% select(ID, tanggal, waktu, ruangan, Pengawas_ID, Ketua_ID, Admin_ID)
+export(df, "daftar_ept_cleaning_result.xlsx")
+```
+

@@ -1,5 +1,5 @@
 # Load Packages
-pacman::p_load(pacman, tidyverse, rio, RODBC)
+pacman::p_load(pacman, dplyr, rio, RODBC)
 
 
 # Set Working Directory
@@ -7,7 +7,7 @@ setwd("C:/Users/ASUS/Desktop")
 
 
 # Connect to Database
-dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:/Cloud Data/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:/Users/ASUS/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
 
 # Load Tables
 tbl_mhs_data <- sqlFetch(dta, "mhs_data_T") %>% as_tibble()
@@ -33,13 +33,13 @@ tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
 # Load Table Result
 # Load Table Result
 
-tahun <- "2021"
-bulan <- "03"
-tanggal <- "26"
+tahun <- "2022"
+bulan <- "09"
+tanggal <- "14"
 
 for(i in 3:10){
         assign(paste0("a",i,sep=""),
-               import(paste("B",i,"_",tahun,"_",bulan,"_",tanggal,"_Result.xlsx", sep = "")) %>%
+               import(paste("Toeic",i,"_",tahun,"_",bulan,"_",tanggal,"_Result.xlsx", sep = "")) %>%
                        as_tibble())
 }
 
