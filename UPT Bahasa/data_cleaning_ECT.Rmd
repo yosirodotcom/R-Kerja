@@ -19,7 +19,7 @@ maxid <- df$ID[length(df$ID)]
 ```
 
 ```{r}
-# Memasukkan data yang hilang di mana ID nya kan harus berurutan dari 1 : 12462
+# Memasukkan data yang hilang di mana ID nya kan harus berurutan dari 1 : maxid
 tambahData <- function(id){
   df %<>% add_row( ID=id,
                    ISO=0,
@@ -92,7 +92,7 @@ tabel_prodi <- data.frame(
   stringsAsFactors = FALSE,
                          prodi_id = c(1,2,3,4,5,6,7,8,9,10,
                                       11,12,13,14,15,16,17,18,19,
-                                      20,21,22,23),
+                                      20,21,22,23,24),
                           prodi = c("-","TEKNIK SIPIL",
                                       "TEKNIK PERENCANAAN PERUMAHAN & PEMUKIMAN","D4 TEKNIK MESIN",
                                       "D3 TEKNIK MESIN","D1 TEKNIK MESIN",
@@ -106,7 +106,9 @@ tabel_prodi <- data.frame(
                                       "TEKNOLOGI PENANGKAPAN IKAN",
                                       "TEKNOLOGI PENGOLAHAN HASIL PERIKANAN","ARSITEKTUR",
                                       "ARSITEK BANGUNAN GEDUNG","DESAIN KAWASAN BINAAN",
-                                      "ADMINISTRASI BISNIS OTOMOTIF")
+                                      "ADMINISTRASI BISNIS OTOMOTIF",
+                                      "PENGOLAHAN HASIL PERKEBUNAN TERPADU"
+                                    )
                )
 
 # Tabel Kegiatan
@@ -345,7 +347,56 @@ EPTECT %<>% mutate(Keterangan = ifelse(Tes == "ECT" & Skor < 400, "< 400",
 export(EPTECT, "EPTECT.xlsx")
 ```
 
+Cleaning data daftar ECT
+
+```{r}
+daftar_ECT <- import("mhs_daftar_toeic_T.xlsx")
+tail(daftar_ECT) # cek apakah ID nya tidak ada yang di hapus, samakan ID dan nomor row nya
+```
 
 
+```{r}
+# pilih kolom yang sesuai
+daftar_ECT %<>%  select("ID", "tanggal", "waktu", "ruangan", "pengawas_1", "ketua", "admin")
+head(daftar_ECT)
+```
 
+```{r}
+# Cek nama pengawas_1
+daftar_ECT %>% select("pengawas_1") %>% unique()
+
+```
+
+```{r}
+# Buat kolom pengawas_ID
+daftar_ECT %<>% mutate(Pengawas_ID = if_else(pengawas_1=="Yosi Ronadi", 13, 
+                                            if_else(pengawas_1=="Anggita", 10,
+                                                    if_else(pengawas_1=="Halima", 14,
+                                                            if_else(pengawas_1=="Lilis Listiyawati", 3,
+                                                                    if_else(pengawas_1=="Dra. Lilis Listiyawati, M.Si.", 3,
+                                                                            if_else(pengawas_1=="Anggita, S.Pd., M.Pd.", 10,
+                                                                                    if_else(pengawas_1=="Dr. Nurmala Simbolon, M.Ed.", 7,
+                                                                                            if_else(pengawas_1=="Indah Anjar Reski, M.Pd.", 12,
+                                                                                                    if_else(pengawas_1=="Nurul Fitriani, M.Ed. Ph.D", 5,
+                                                                                                            if_else(pengawas_1=="Urai Endang, M.Ed.", 6, 1)))))))))))
+
+
+```
+
+```{r}
+# Cek nama ketua
+daftar_ECT %>% select("admin") %>% unique()
+```
+
+```{r}
+daftar_ECT$Ketua_ID <- 3
+```
+
+```{r}
+daftar_ECT %<>% mutate(Admin_ID = if_else(admin=="Yosi Ronadi", 13, 14))
+```
+
+```{r}
+export(daftar_ECT, "daftar_ECT.xlsx")
+```
 

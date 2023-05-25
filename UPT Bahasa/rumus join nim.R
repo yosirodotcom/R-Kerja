@@ -4,7 +4,7 @@ pacman::p_load(pacman, dplyr, rio, RODBC, magrittr)
 
 setwd("C:/Users/ASUS/Desktop")
 
-dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:/Users/ASUS/OneDrive - Universitas Terbuka/UPT Bahasa/2 Yosi Folder/Database Projects/UPT BAHASA Database Master.accdb")
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=G:/Other computers/My computer/Documents/10 Yosi Files/Database Projects/UPT BAHASA Database Master.accdb")
 
 tabel1 <- sqlFetch(dta, "mhs_data_T")
 
@@ -29,14 +29,14 @@ tabel_join2 <- tabel_join1 %>% group_by(nim) %>% slice(1) %>% arrange(nama.x)
 
 
 # Export 1 by 1
-export(tabel_join2, file = "BDP 6C.xlsx")
+export(tabel_join2, file = "TPI6C.xlsx")
 
 # Join all file
 
 name_file <- as.list(sprintf("%s.xlsx", seq(1:2)))
 
 import_file <- lapply(name_file, import)
-export(import_file, "tphp.xlsx")
+export(import_file, "AK5C.xlsx")
 
 # book <- loadWorkbook("tabel_join.xlsx")
 # createSheet(book, kelas)
