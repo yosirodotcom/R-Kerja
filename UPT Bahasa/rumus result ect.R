@@ -7,22 +7,10 @@ setwd("C:/Users/ASUS/Downloads")
 
 
 # Connect to Database
-dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=G:/Other computers/My computer/Documents/8 Database/New UPTBAHASA - v36.accdb")
+dta <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=G:/Other computers/My computer/Documents/8 Database/New UPTBAHASA - v37.accdb")
 
 # Load Tables
-# tbl_mhs_data <- sqlFetch(dta, "mhs_data_T") %>% as_tibble()
-# tbl_mhs_kelas <- sqlFetch(dta, "mhs_kelas_T") %>% as_tibble()
-# tbl_dosen <- sqlFetch(dta, "dosen") %>% as_tibble()
-# tbl_jurusan <- sqlFetch(dta, "jurusan") %>% as_tibble()
-# tbl_pengawas <- sqlFetch(dta, "pengawas") %>% as_tibble()
-# tbl_prodi <- sqlFetch(dta, "prodi") %>% as_tibble()
-# tbl_mhs_daftar_toefl <- sqlFetch(dta, "mhs_daftar_toefl_T") %>% as_tibble()
-# tbl_mhs_score_toefl <- sqlFetch(dta, "mhs_score_toefl_T") %>% as_tibble()
-# tbl_mhs_daftar_toeic <- sqlFetch(dta, "mhs_daftar_toeic_T") %>% as_tibble()
-# tbl_mhs_score_toeic <- sqlFetch(dta, "mhs_score_toeic_T") %>% as_tibble()
-# tbl_rumus_toefl_grammar <- sqlFetch(dta, "rumus_toefl_grammar") %>% as_tibble()
-# tbl_rumus_toefl_listening <- sqlFetch(dta, "rumus_toefl_listening") %>% as_tibble()
-# tbl_rumus_toefl_reading <- sqlFetch(dta, "rumus_toefl_reading") %>% as_tibble()
+
 tbl_rumus_toeic_grammar <- sqlFetch(dta, "tbl_RumusToeicReading") %>% as_tibble()
 tbl_rumus_toeic_listening <- sqlFetch(dta, "tbl_RumusToeicListening") %>% as_tibble()
 tbl_rumus_toeic_grammar$ID <- as.numeric(tbl_rumus_toeic_grammar$ID)
@@ -30,7 +18,6 @@ tbl_rumus_toeic_listening$ID <- as.numeric(tbl_rumus_toeic_listening$ID)
 
 tbl_ect <- sqlFetch(dta, "tbl_ECT_skor") %>% as_tibble()
 
-# Load Table Result
 # Load Table Result
 
 tahun <- "2023"
